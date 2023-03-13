@@ -38,7 +38,11 @@ add_library(${CMAKE_PROJECT_NAME} SHARED EXCLUDE_FROM_ALL ${SRC})
 include_directories(BEFORE ${CMAKE_BINARY_DIR}/include)
 
 add_subdirectory("opencpn-libs/${PKG_API_LIB}")
-target_link_libraries(${CMAKE_PROJECT_NAME} ocpn::api)
+if (${PKG_NAME} MATCHES wx32)
+  target_link_libraries(${CMAKE_PROJECT_NAME} ocpn::api_wx32)
+else ()
+  target_link_libraries(${CMAKE_PROJECT_NAME} ocpn::api)
+endif ()
 
 set(VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(VERSION_MINOR ${PROJECT_VERSION_MINOR})
@@ -62,7 +66,7 @@ include(ConfigureManifest)
 configure_manifest(${manifest} _new_manifest)
 
 # Set up targets. Targets sets up new targets with BUILD_TYPE set to
-# 'flatpak', 'antradnavoid' or 'tarball'. The initial call without BUILD_TYPE ends
+# 'flatpak', 'android' or 'tarball'. The initial call without BUILD_TYPE ends
 # here.
 #
 include(Targets)
@@ -72,19 +76,23 @@ if ("${BUILD_TYPE}" STREQUAL "")
   return ()
 endif ()
 
+ 
 if (NOT ${BUILD_TYPE} STREQUAL "flatpak")
   # Build package as required (flatpak already dealt with).
   #
+  if (APPLE)
+    include(MacosWxwidgets)
+  endif ()
   include(PluginInstall)
-  if (QT_ANTradNavOID)
-    include(AntradnavoidLibs)
+  if (QT_ANDROID)
+    include(AndroidLibs)
   else ()
     include(PluginLibs)
   endif ()
   include(PluginLocalization)
 
   include_directories(BEFORE ${CMAKE_BINARY_DIR}/include)
-
+ 
   if (COMMAND add_plugin_libraries)
     add_plugin_libraries()
   endif ()
