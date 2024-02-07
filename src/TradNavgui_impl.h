@@ -45,6 +45,7 @@
 #include <math.h>
 #include <cmath>
 #include <wx/timer.h>
+#include "ocpn_plugin.h"
 
 
 #ifdef __OCPN__ANTradNavOID__
@@ -55,7 +56,6 @@ using namespace std;
 
 class TradNav_pi;
 class Position;
-class piOverlayFactory;
 class PlugIn_ViewPort;
 class RangeFix;
 class piDC;
@@ -83,11 +83,15 @@ public:
 		
 		vector<Position> my_positions;
 		vector<Position> my_points;
+    vector<Position> my_curpoints;
+
 
         void Addpoint(TiXmlElement* Route, wxString ptlat, wxString ptlon, wxString ptname, wxString ptsym, wxString pttype);
         void OnDraw(wxCommandEvent& event);	
+        void OnDrawHorizontal(wxCommandEvent& event);	
+
         void OnUpdate(); 
-		void OnLeft();
+		
         void OnDrag();
         double m_dRange;
 		
@@ -104,19 +108,29 @@ public:
         void AddRadius();
 
         void text_shortcut(wxCommandEvent& event);
-        void OnMouseDrag(wxMouseEvent& event);
+        //void OnMouseDrag(wxMouseEvent& event);
         void key_shortcut(wxKeyEvent& event);
         void OnCursorSelect(wxCommandEvent& event);
         void OnCursor(wxCommandEvent& event);
+        void OnCursor(double lat, double lon);
+
+        void OnRightDown();
+        void OnRightDownDragging();
+        void OnLeftDownDragging();
+        void OnToggleRange(wxCommandEvent& event);
+        void OnScroll(wxScrollEvent& event);
+
         void OnCursor(void);
 
         void OnRangeCursorSelect(wxCommandEvent& event);
         void OnRangeCursor(wxCommandEvent& event);
         void OnRangeCursor(void);
+        void OnRangeCursor(double lat, double lon);
 
         void OnHorizontalSelect(wxCommandEvent& event);
         void OnHorizontal(wxCommandEvent& event);
         void OnHorizontal(void);
+        void OnHorizontal(double lat, double lon);
 
         wxString myguid;
 
@@ -133,7 +147,8 @@ public:
         PlugIn_Waypoint_Ex* rangeWaypoint;
         PlugIn_Waypoint_Ex* editWaypoint;
 
-        PlugIn_Waypoint_Ex* eblWaypoint;
+        PlugIn_Waypoint_Ex* eblWaypoint, foundWaypoint;
+        PlugIn_Waypoint_Ex* foundWP;
         PlugIn_Route_Ex* eblRoute, *nRoute;
         int GetRandomNumber(int range_min, int range_max);
         bool m_bShowBearing;
@@ -141,6 +156,7 @@ public:
         Plugin_WaypointExList* myList, *newList;
         PlugIn_Waypoint_Ex *pwaypointex, *pwaypointex1, *pwpt, *pwpt1;
         wxPlugin_WaypointExListNode* pwpnode, *pwpnode1;
+        PlugIn_Route_Ex* myRoute;
         void OnTimer(wxTimerEvent& event);
         void Notify();
         void OnStart(wxCommandEvent& event);
@@ -151,13 +167,24 @@ public:
         wxString myDist;
         wxPoint textPoint;
 
-private:
+        bool m_bToggleRange;
+        bool m_bSetRange;
+        wxArrayString m_arrayGUID;
+        wxArrayString m_arrayRouteGUID;
+        wxString GetClosestWP();
+        wxString GetClosestRoute();
+        double GetBestAngle(double hsa, double brg);
+
+        wxPoint g_mouse_pos_screen;
+        void OnMouseEvent(wxPoint eventP);
+
+ private:
 	    void OnClose( wxCloseEvent& event );
         PlugIn_Route* newRoute;
 		void AddMyWaypoint(); 
 		
 		PlugIn_Waypoint* wayPointA;
-        
+        void OnLeft();
 
         double lat1, lon1, lat2, lon2;
         bool error_found;
@@ -174,6 +201,7 @@ class Position
 public:
 
     wxString lat, lon, wpt_num;
+    double latD, lonD;
     Position *prev, *next; /* doubly linked circular list of positions */
     int routepoint;
 

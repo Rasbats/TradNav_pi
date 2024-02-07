@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version 3.10.1-0-g8feb16b3)
+// C++ code generated with wxFormBuilder (version 4.0.0-0-g0efcecf)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO *NOT* EDIT THIS FILE!
@@ -18,7 +18,7 @@ m_Dialog::m_Dialog( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	m_staticText1511 = new wxStaticText( this, wxID_ANY, wxT("DR Options"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText1511->Wrap( -1 );
-	m_staticText1511->SetFont( wxFont( 20, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Arial") ) );
+	m_staticText1511->SetFont( wxFont( 20, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
 
 	bSizer9111->Add( m_staticText1511, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
 
@@ -49,15 +49,9 @@ m_Dialog::m_Dialog( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_staticText32111111->Wrap( -1 );
 	bSizer14111111->Add( m_staticText32111111, 0, wxALL, 5 );
 
-	wxString m_NshipChoices[] = { wxT("1"), wxT("2"), wxT("3"), wxT("4"), wxT("5"), wxT("6") };
-	int m_NshipNChoices = sizeof( m_NshipChoices ) / sizeof( wxString );
-	m_Nship = new wxChoice( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_NshipNChoices, m_NshipChoices, 0 );
-	m_Nship->SetSelection( 0 );
-	bSizer14111111->Add( m_Nship, 0, wxALL, 5 );
-
-	m_staticText3311111 = new wxStaticText( this, wxID_ANY, wxT("Hours"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText3311111->Wrap( -1 );
-	bSizer14111111->Add( m_staticText3311111, 0, wxALL, 5 );
+	m_toggleRange = new wxToggleButton( this, wxID_ANY, wxT("Range"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_toggleRange->SetValue( true );
+	bSizer14111111->Add( m_toggleRange, 0, wxALL, 5 );
 
 
 	bSizer1311->Add( bSizer14111111, 1, wxEXPAND, 5 );
@@ -74,6 +68,15 @@ m_Dialog::m_Dialog( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 
 	bSizer1311->Add( bSizer141, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* bSizer9;
+	bSizer9 = new wxBoxSizer( wxVERTICAL );
+
+	m_sliderRange = new wxSlider( this, wxID_ANY, 0, 0, 30, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
+	bSizer9->Add( m_sliderRange, 0, wxALL|wxEXPAND, 5 );
+
+
+	bSizer1311->Add( bSizer9, 1, wxEXPAND, 5 );
 
 	wxBoxSizer* bSizer14;
 	bSizer14 = new wxBoxSizer( wxHORIZONTAL );
@@ -113,12 +116,15 @@ m_Dialog::m_Dialog( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_button3111 = new wxButton( this, wxID_ANY, wxT("Draw Bearings"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer71->Add( m_button3111, 0, wxALIGN_CENTER_HORIZONTAL|wxALL|wxEXPAND, 5 );
 
-	m_staticText71 = new wxStaticText( this, wxID_ANY, wxT("Imports an existing GPX file\n... then makes and saves a new route file\n... (GPX) with added DR positions"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText71->Wrap( -1 );
-	bSizer71->Add( m_staticText71, 0, wxALL, 5 );
 
+	bSizer9111->Add( bSizer71, 0, wxEXPAND, 5 );
 
-	bSizer9111->Add( bSizer71, 1, wxEXPAND, 5 );
+	m_toggleBtn2 = new wxToggleButton( this, wxID_ANY, wxT("Start Drawing Bearings"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer9111->Add( m_toggleBtn2, 0, wxALL, 5 );
+
+	m_checkBoxBearing = new wxCheckBox( this, wxID_ANY, wxT("Add Bearing"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_checkBoxBearing->SetValue(true);
+	bSizer9111->Add( m_checkBoxBearing, 0, wxALL, 5 );
 
 	m_checkBoxAdd = new wxCheckBox( this, wxID_ANY, wxT("Add Waypoint"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer9111->Add( m_checkBoxAdd, 0, wxALL, 5 );
@@ -131,6 +137,9 @@ m_Dialog::m_Dialog( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	m_buttonHorizontal = new wxButton( this, wxID_ANY, wxT("Draw Horizontal"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer9111->Add( m_buttonHorizontal, 0, wxALL|wxEXPAND, 5 );
+
+	m_buttonDrawHorizontal = new wxButton( this, wxID_ANY, wxT("MyButton"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer9111->Add( m_buttonDrawHorizontal, 0, wxALL, 5 );
 
 	m_buttonDraw1 = new wxButton( this, wxID_ANY, wxT("StopTimer"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer9111->Add( m_buttonDraw1, 0, wxALL|wxEXPAND, 5 );
@@ -152,39 +161,61 @@ m_Dialog::m_Dialog( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	this->SetSizer( bSizer9111 );
 	this->Layout();
-	myTimer.SetOwner( this, wxID_ANY );
+	myTimer.SetOwner( this, myTimer.GetId() );
 
 	this->Centre( wxBOTH );
 
 	// Connect Events
 	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( m_Dialog::OnClose ) );
+	m_toggleRange->Connect( wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler( m_Dialog::OnToggleRange ), NULL, this );
 	m_textCtrlRange->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( m_Dialog::text_shortcut ), NULL, this );
+	m_sliderRange->Connect( wxEVT_SCROLL_TOP, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Connect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Connect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Connect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Connect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Connect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Connect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
 	m_Bearing->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( m_Dialog::key_shortcut ), NULL, this );
 	m_textCtrlHorizontal->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( m_Dialog::key_shortcut ), NULL, this );
 	m_button3111->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( m_Dialog::OnCursorSelect ), NULL, this );
 	m_button3111->Connect( wxEVT_CHAR_HOOK, wxKeyEventHandler( m_Dialog::OnCharHook ), NULL, this );
 	m_buttonDraw->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( m_Dialog::OnRangeCursorSelect ), NULL, this );
 	m_buttonHorizontal->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( m_Dialog::OnHorizontalSelect ), NULL, this );
+	m_buttonDrawHorizontal->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( m_Dialog::OnDrawHorizontal ), NULL, this );
 	m_buttonDraw1->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( m_Dialog::OnStop ), NULL, this );
 	m_textCtrlLat->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( m_Dialog::key_shortcut ), NULL, this );
 	m_textCtrlLon->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( m_Dialog::key_shortcut ), NULL, this );
-	this->Connect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( m_Dialog::OnTimer ) );
+	this->Connect( myTimer.GetId(), wxEVT_TIMER, wxTimerEventHandler( m_Dialog::OnTimer ) );
 }
 
 m_Dialog::~m_Dialog()
 {
 	// Disconnect Events
 	this->Disconnect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( m_Dialog::OnClose ) );
+	m_toggleRange->Disconnect( wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEventHandler( m_Dialog::OnToggleRange ), NULL, this );
 	m_textCtrlRange->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( m_Dialog::text_shortcut ), NULL, this );
+	m_sliderRange->Disconnect( wxEVT_SCROLL_TOP, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Disconnect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Disconnect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Disconnect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Disconnect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Disconnect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
+	m_sliderRange->Disconnect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( m_Dialog::OnScroll ), NULL, this );
 	m_Bearing->Disconnect( wxEVT_KEY_DOWN, wxKeyEventHandler( m_Dialog::key_shortcut ), NULL, this );
 	m_textCtrlHorizontal->Disconnect( wxEVT_KEY_DOWN, wxKeyEventHandler( m_Dialog::key_shortcut ), NULL, this );
 	m_button3111->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( m_Dialog::OnCursorSelect ), NULL, this );
 	m_button3111->Disconnect( wxEVT_CHAR_HOOK, wxKeyEventHandler( m_Dialog::OnCharHook ), NULL, this );
 	m_buttonDraw->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( m_Dialog::OnRangeCursorSelect ), NULL, this );
 	m_buttonHorizontal->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( m_Dialog::OnHorizontalSelect ), NULL, this );
+	m_buttonDrawHorizontal->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( m_Dialog::OnDrawHorizontal ), NULL, this );
 	m_buttonDraw1->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( m_Dialog::OnStop ), NULL, this );
 	m_textCtrlLat->Disconnect( wxEVT_KEY_DOWN, wxKeyEventHandler( m_Dialog::key_shortcut ), NULL, this );
 	m_textCtrlLon->Disconnect( wxEVT_KEY_DOWN, wxKeyEventHandler( m_Dialog::key_shortcut ), NULL, this );
-	this->Disconnect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( m_Dialog::OnTimer ) );
+	this->Disconnect( myTimer.GetId(), wxEVT_TIMER, wxTimerEventHandler( m_Dialog::OnTimer ) );
 
 }

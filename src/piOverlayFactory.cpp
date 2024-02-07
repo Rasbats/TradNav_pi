@@ -25,18 +25,18 @@
  *
  */
 
-#include <wx/wx.h>
 #include <wx/glcanvas.h>
 #include <wx/vector.h>
+#include <wx/wx.h>
 
 #ifdef __WXOSX__
-# include <OpenGL/OpenGL.h>
-# include <OpenGL/gl3.h>
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/gl3.h>
 #endif
 
 #ifdef __OCPN__ANDROID__
-#include <qopengl.h>
 #include "gl_private.h"
+#include <qopengl.h>
 #endif
 
 #ifdef USE_ANDROID_GLES2
@@ -46,19 +46,18 @@
 #include "TradNav_pi.h"
 #include "icons.h"
 
-
 #define FAILED_FILELIST_MSG_LEN 150
 
 class piDC;
 
-//static int s_multitexturing = 0;
-//static PFNGLACTIVETEXTUREARBPROC s_glActiveTextureARB = 0;
-//static PFNGLMULTITEXCOORD2DARBPROC s_glMultiTexCoord2dARB = 0;
+// static int s_multitexturing = 0;
+// static PFNGLACTIVETEXTUREARBPROC s_glActiveTextureARB = 0;
+// static PFNGLMULTITEXCOORD2DARBPROC s_glMultiTexCoord2dARB = 0;
 
 static int texture_format;
 static bool glQueried = false;
 
-static GLboolean QueryExtension( const char *extName )
+static GLboolean QueryExtension(const char* extName)
 {
     /*
      ** Search for extName in the extensions string. Use of strstr()
@@ -66,25 +65,25 @@ static GLboolean QueryExtension( const char *extName )
      ** other extension names. Could use strtok() but the constant
      ** string returned by glGetString might be in read-only memory.
      */
-    char *p;
-    char *end;
+    char* p;
+    char* end;
     int extNameLen;
 
-    extNameLen = strlen( extName );
+    extNameLen = strlen(extName);
 
-    p = (char *) glGetString( GL_EXTENSIONS );
-    if( NULL == p ) {
+    p = (char*)glGetString(GL_EXTENSIONS);
+    if (NULL == p) {
         return GL_FALSE;
     }
 
-    end = p + strlen( p );
+    end = p + strlen(p);
 
-    while( p < end ) {
-        int n = strcspn( p, " " );
-        if( ( extNameLen == n ) && ( strncmp( extName, p, n ) == 0 ) ) {
+    while (p < end) {
+        int n = strcspn(p, " ");
+        if ((extNameLen == n) && (strncmp(extName, p, n) == 0)) {
             return GL_TRUE;
         }
-        p += ( n + 1 );
+        p += (n + 1);
     }
     return GL_FALSE;
 }
@@ -93,132 +92,128 @@ static GLboolean QueryExtension( const char *extName )
 #define systemGetProcAddress(ADDR) wglGetProcAddress(ADDR)
 #elif defined(__WXOSX__)
 #include <dlfcn.h>
-#define systemGetProcAddress(ADDR) dlsym( RTLD_DEFAULT, ADDR)
+#define systemGetProcAddress(ADDR) dlsym(RTLD_DEFAULT, ADDR)
 #elif defined(__OCPN__ANDROID__)
 #define systemGetProcAddress(ADDR) eglGetProcAddress(ADDR)
 #else
 #define systemGetProcAddress(ADDR) glXGetProcAddress((const GLubyte*)ADDR)
 #endif
 
-double deg2rad(double degrees)
-{
-  return M_PI * degrees / 180.0;
-}
+double deg2rad(double degrees) { return M_PI * degrees / 180.0; }
 
 piOverlay::~piOverlay()
 {
-   // if(m_iTexture)
-      //  glDeleteTextures( 1, &m_iTexture );
-    //delete m_pDCBitmap, delete[] m_pRGBA;
+    // if(m_iTexture)
+    //  glDeleteTextures( 1, &m_iTexture );
+    // delete m_pDCBitmap, delete[] m_pRGBA;
 }
 
-
-
-
-piOverlayFactory::piOverlayFactory( Dlg &dlg )
+piOverlayFactory::piOverlayFactory(Dlg& dlg)
     : m_dlg(dlg)
 {
     // make sure the user data directory exists
-   
-
 }
 
-piOverlayFactory::~piOverlayFactory()
+piOverlayFactory::~piOverlayFactory() { }
+
+bool piOverlayFactory::RenderOverlay(piDC& dc, PlugIn_ViewPort& vp)
 {
-   
-}
+    m_dc = &dc;
 
+    if (!dc.GetDC()) {
+        if (!glQueried) {
 
-bool piOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp)
-{
-	m_dc = &dc;	
-
-	if (!dc.GetDC()) {
-		if (!glQueried) {
-			
-			glQueried = true;
-		}
+            glQueried = true;
+        }
 #ifndef USE_GLSL
-		glPushAttrib(GL_LINE_BIT | GL_ENABLE_BIT | GL_HINT_BIT); //Save state
+        glPushAttrib(GL_LINE_BIT | GL_ENABLE_BIT | GL_HINT_BIT); // Save state
 
-		//      Enable anti-aliased lines, at best quality
-		glEnable(GL_LINE_SMOOTH);
-		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        //      Enable anti-aliased lines, at best quality
+        glEnable(GL_LINE_SMOOTH);
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #endif
-		glEnable(GL_BLEND);
-	}
+        glEnable(GL_BLEND);
+    }
 
-	wxFont font(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-	m_dc->SetFont(font);
+    wxFont font(
+        12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+    m_dc->SetFont(font);
 
-	wxColour myColour = wxColour("RED");
-	std::vector<Position> mypoints =  m_dlg.my_points;
+    wxColour myColour = wxColour("RED");
+    std::vector<Position> mypoints = m_dlg.my_curpoints;
 
+    // m_dc->DrawBitmap(m_dlg.m_stationBitmap, 100, 100, true);
+    wxPoint p, pn, pnt;
+    // std::vector<Position>::iterator it;
+    /*
+    m_dlg.pPlugIn->g_pToolbar->myLine;
+    wxPoint s = m_dlg.pPlugIn->g_pToolbar->myLine.startPoint;
+    wxPoint e = m_dlg.pPlugIn->g_pToolbar->myLine.endPoint;
 
-   // m_dc->DrawBitmap(m_dlg.m_stationBitmap, 100, 100, true);
-	wxPoint p, pn;
-	for (std::vector<Position>::iterator it = mypoints.begin(); it != mypoints.end(); it++) {
+     DrawLine(s.x, s.y, e.x, e.y, myColour, 4);
+*/
 
+    for (auto i = 0; i < mypoints.size(); i++) {
 
-		
-        //GetCanvasPixLL( &vp, &p, (it)->myLat, (it)->myLon);
-		//GetCanvasPixLL( &vp, &pn, (it)->myNextLat, (it)->myNextLon);
+        GetCanvasPixLL(&vp, &p, mypoints[i].latD, mypoints[i].lonD);
 
-        DrawLine(p.x, p.y, pn.x, pn.y, myColour, 4);	
+        GetCanvasPixLL(&vp, &pn, mypoints[i + 1].latD, mypoints[i + 1].lonD);
 
-	}
-	
-    GetCanvasPixLL(&vp, &pn, m_dlg.m_start_lat, m_dlg.m_start_lon);
+        //DrawLine(p.x, p.y, pn.x, pn.y, myColour, 4);
+    }
 
+    
+    /*
+    GetCanvasPixLL(
+        &vp, &pn, m_dlg.pPlugIn->m_cur_lat[0], m_dlg.pPlugIn->m_cur_lon[0]);
+    GetCanvasPixLL(
+        &vp, &pnt, m_dlg.pPlugIn->m_cur_lat[1], m_dlg.pPlugIn->m_cur_lon[1]);
+*/
+    // wxString myRangePix = wxString::Format("%f", mppix);
+    // wxMessageBox(myRangePix);
 
-   // wxString myRangePix = wxString::Format("%f", mppix);
-   // wxMessageBox(myRangePix);
+    // return true;
 
-    //return true;
+    // 160 mtr per pixel
+    // int mpp = 1;
+    // mpp = m_dlg.myPix;
+    // int pix = 1852.0 * 10.0 / mpp;
 
-    //160 mtr per pixel
-    //int mpp = 1;
-    //mpp = m_dlg.myPix;
-    //int pix = 1852.0 * 10.0 / mpp;
+    // DrawCircle(pn.x, pn.y, mpp ,myColour,4);
 
-	//DrawCircle(pn.x, pn.y, mpp ,myColour,4);
+    //DrawMyRange(&vp);
 
-    DrawMyRange(&vp);
-	
-	DrawLine(40, 40, 120, 120, myColour, 4);
+    //DrawLine(40, 40, 120, 120, myColour, 4);
 
-	polyPoints[0] = wxPoint(48, 160);
-	polyPoints[1] = wxPoint(108, 160);
-	polyPoints[2] = wxPoint(108, 220);
-	polyPoints[3] = wxPoint(48, 160);
+    polyPoints[0] = wxPoint(48, 160);
+    polyPoints[1] = wxPoint(108, 160);
+    polyPoints[2] = wxPoint(108, 220);
+    polyPoints[3] = wxPoint(48, 160);
 
-	m_dc->ConfigurePen();
-	m_dc->SetPen( wxPen(myColour, 1 ));
-	m_dc->ConfigureBrush();
+    m_dc->ConfigurePen();
+    m_dc->SetPen(wxPen(myColour, 1));
+    m_dc->ConfigureBrush();
     m_dc->SetBrush(myColour);
-	m_dc->DrawPolygon(4, polyPoints, 0, 0, 1.0, 0);
-	
-	
+    //m_dc->DrawPolygon(4, polyPoints, 0, 0, 1.0, 0);
+
     return true;
 }
 
-void piOverlayFactory::DrawMyRange(PlugIn_ViewPort* BBox) { 
+void piOverlayFactory::DrawMyRange(PlugIn_ViewPort* BBox)
+{
 
-    
     wxColour myColour = wxColour("RED");
 
     wxPoint pn = m_dlg.newDrawFix.myRangePoint;
     int mypix = m_dlg.newDrawFix.myRangePix;
 
-   // pn.x = 500;
-  //  pn.y = 500;
+    // pn.x = 500;
+    //  pn.y = 500;
     mypix = 100;
 
     DrawCircle(pn.x, pn.y, mypix, myColour, 4);
-    
-
 }
 
 bool piOverlayFactory::RenderText(piDC& dc, PlugIn_ViewPort& vp)
@@ -253,33 +248,33 @@ void piOverlayFactory::DrawText(double x1, double y1, double x2, double y2,
     m_dc->DrawText("testing", 150, 150);
 }
 
-void piOverlayFactory::DrawLine( double x1, double y1, double x2, double y2,
-                                          const wxColour &color, double width )
+void piOverlayFactory::DrawLine(double x1, double y1, double x2, double y2,
+    const wxColour& color, double width)
 {
-	m_dc->ConfigurePen();
-	m_dc->SetPen( wxPen(color, width ) );
-	m_dc->ConfigureBrush();
-    m_dc->SetBrush( *wxTRANSPARENT_BRUSH);
+    m_dc->ConfigurePen();
+    m_dc->SetPen(wxPen(color, width));
+    m_dc->ConfigureBrush();
+    m_dc->SetBrush(*wxTRANSPARENT_BRUSH);
     m_dc->DrawLine(x1, y1, x2, y2, false);
 
     m_dc->ConfigurePen();
-	m_dc->SetPen( wxPen(color, width ) );
+    m_dc->SetPen(wxPen(color, width));
 
-	wxFont font( 16, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
-    m_dc->SetFont( font );
+    wxFont font(
+        16, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+    m_dc->SetFont(font);
 
     m_dc->DrawText("testing", 150, 150);
+}
 
-	}
-
-void piOverlayFactory::DrawCircle( double x, double y, double r, const wxColour& color, double width)
-        {
+void piOverlayFactory::DrawCircle(
+    double x, double y, double r, const wxColour& color, double width)
+{
     m_dc->ConfigurePen();
     m_dc->SetPen(wxPen(color, width));
     m_dc->ConfigureBrush();
     m_dc->SetBrush(*wxTRANSPARENT_BRUSH);
     m_dc->DrawCircle(x, y, r);
-
 }
 
 int piOverlayFactory::GetRangePixVP(PlugIn_ViewPort& vp, double r)
@@ -294,26 +289,23 @@ int piOverlayFactory::GetRangePixVP(PlugIn_ViewPort& vp, double r)
     return pixrange;
 }
 
-
-
-
-void piOverlayFactory::DrawNumbers(wxPoint p, double value, int settings,
-                                     wxColour back_color) {
+void piOverlayFactory::DrawNumbers(
+    wxPoint p, double value, int settings, wxColour back_color)
+{
 
 #ifdef ocpnUSE_GL
 #ifndef USE_ANDROID_GLES2
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4ub(back_color.Red(), back_color.Green(), back_color.Blue(),
-              0);
+    glColor4ub(back_color.Red(), back_color.Green(), back_color.Blue(), 0);
 
     glLineWidth(1);
 
     wxString label = "testing";
     int w, h;
-	TexFont m_TexFontNumbers;
-	m_TexFontNumbers.GetTextExtent(label, &w, &h);
+    TexFont m_TexFontNumbers;
+    m_TexFontNumbers.GetTextExtent(label, &w, &h);
 
     int label_offsetx = 5, label_offsety = 1;
     int x = p.x - label_offsetx, y = p.y - label_offsety;
@@ -344,8 +336,8 @@ void piOverlayFactory::DrawNumbers(wxPoint p, double value, int settings,
 #ifdef __WXQT__
     wxFont font = GetOCPNGUIScaledFont_PlugIn(_T("Dialog"));
 #else
-    wxFont font(9, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,
-                wxFONTWEIGHT_NORMAL);
+    wxFont font(
+        9, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 #endif
 
     wxString label = "testing";
@@ -372,19 +364,17 @@ void piOverlayFactory::DrawNumbers(wxPoint p, double value, int settings,
 
 #endif
 #endif
-  
 }
 
+void piOverlayFactory::Plot(piDC* dc, PlugIn_ViewPort* vp, wxColour color)
+{
 
+    wxFont font(
+        15, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL);
 
-void piOverlayFactory::Plot(piDC *dc, PlugIn_ViewPort *vp, wxColour color) {	
-
-	wxFont font(15, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_ITALIC,
-		wxFONTWEIGHT_NORMAL);
-
-	dc->SetPen(wxPen(color, 3));
-	dc->SetTextForeground(color);
-	dc->SetFont(font);
+    dc->SetPen(wxPen(color, 3));
+    dc->SetTextForeground(color);
+    dc->SetFont(font);
 #if 0
 	if (dc) {
 		dc->SetPen(wxPen(color, 3));
@@ -398,25 +388,18 @@ void piOverlayFactory::Plot(piDC *dc, PlugIn_ViewPort *vp, wxColour color) {
 	}
 #endif
 
-	wxColour myColour = wxColour("RED");
-	std::vector<Position> mypoints =  m_dlg.my_points;
+    wxColour myColour = wxColour("RED");
+    std::vector<Position> mypoints = m_dlg.my_points;
 
-	for (std::vector<Position>::iterator it = mypoints.begin(); it != mypoints.end(); it++) {
+    for (std::vector<Position>::iterator it = mypoints.begin();
+         it != mypoints.end(); it++) {
 
+        wxPoint p, pn;
+        // GetCanvasPixLL( vp, &p, (it)->myLat, (it)->myLon);
+        // GetCanvasPixLL( vp, &pn, (it)->myNextLat, (it)->myNextLon);
 
-	wxPoint p, pn;
-        //GetCanvasPixLL( vp, &p, (it)->myLat, (it)->myLon);
-		//GetCanvasPixLL( vp, &pn, (it)->myNextLat, (it)->myNextLon);
+        // DrawLine(p.x, p.y, pn.x, pn.y, myColour, 4);
+    }
 
-        //DrawLine(p.x, p.y, pn.x, pn.y, myColour, 4);	
-
-
-
-	}
-	
-	
-	
-	DrawLine(40, 40, 120, 120, myColour, 4);
-
+    DrawLine(40, 40, 120, 120, myColour, 4);
 }
-

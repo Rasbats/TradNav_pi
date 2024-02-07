@@ -34,7 +34,7 @@ option(TradNav_USE_SVG "Use SVG graphics" ON)
 # -------  Plugin setup --------
 #
 set(PKG_NAME TradNav_pi)
-set(PKG_VERSION  0.0.0)
+set(PKG_VERSION  0.1.0)
 set(PKG_PRERELEASE "")  # Empty, or a tag like 'beta'
 
 set(DISPLAY_NAME TradNav)    # Dialogs, installer artifacts, ...
@@ -63,8 +63,17 @@ set(SRC
     src/gl_private.h
     src/pidc.cpp
     src/pidc.h
-    src/piOverlayFactory.cpp
-    src/piOverlayFactory.h
+    src/doc.cpp
+    src/doc.h
+    src/globals.h
+    src/tdEventHandler.cpp
+    src/tdEventHandler.h
+    src/range.cpp
+    src/range.h
+    src/tdPath.cpp
+    src/tdPath.h
+    src/bearing.cpp
+    src/bearing.h
 
 )
 
@@ -76,9 +85,9 @@ macro(late_init)
   if (TradNav_USE_SVG)
     target_compile_definitions(${PACKAGE_NAME} PUBLIC TradNav_USE_SVG)
   endif ()
-  
+
   add_definitions(-DocpnUSE_GL)
-  
+
   if (QT_ANDROID)
     add_definitions(-DUSE_ANDROID_GLES2)
   endif ()
@@ -92,4 +101,8 @@ macro(add_plugin_libraries)
 
   add_subdirectory("libs/plugingl")
   target_link_libraries(${PACKAGE_NAME} ocpn::plugingl)
+
+  add_subdirectory("${CMAKE_SOURCE_DIR}/opencpn-libs/pugixml")
+  target_link_libraries(${PACKAGE_NAME} ocpn::pugixml)
+
 endmacro ()
