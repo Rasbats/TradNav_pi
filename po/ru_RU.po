@@ -2,142 +2,379 @@ msgid ""
 msgstr ""
 "Project-Id-Version: opencpn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-10 12:43+0000\n"
-"PO-Revision-Date: 2019-06-04 15:09\n"
-"Last-Translator: Pavel Kalian (nohal)\n"
+"POT-Creation-Date: 2018-12-31 18:12+0000\n"
+"PO-Revision-Date: 2018-02-08 09:11-0500\n"
+"Last-Translator: nohal <pavel@kalian.cz>\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: opencpn\n"
 "X-Crowdin-Language: ru\n"
-"X-Crowdin-File: /plugins/shipdriver_pi/po/ShipDriver_pi.pot\n"
-
-#: src/ShipDriver_pi.cpp:125 src/ShipDriver_pi.cpp:128 src/ShipDriver_pi.cpp:212
-#: src/ShipDrivergui_impl.h:80
-msgid "ShipDriver"
+"X-Crowdin-File: /plugins/otcurrent_pi/po/otcurrent_pi.pot\n"
+#
+msgid "      < 0.5 knots"
 msgstr ""
-
-#: src/ShipDriver_pi.cpp:134
-msgid "Select Vessel Start Position"
+#
+#, c-format
+msgid "%.1f"
 msgstr ""
-
-#: src/ShipDriver_pi.cpp:218
-msgid "ShipDriver player"
+#
+msgid "&About"
 msgstr ""
-
-#: src/ShipDriver_pi.cpp:223
-msgid "Almost a simulator"
+#
+msgid "&Guide"
 msgstr ""
-
-#: src/ShipDrivergui.h:105
+#
+msgid ">= 0.5 and < 1.5"
+msgstr ""
+#
+msgid ">= 1.5 and < 2.5"
+msgstr ""
+#
+msgid ">= 2.5 and < 3.5"
+msgstr ""
+#
+msgid ">= 3.5 knots    "
+msgstr ""
+#
+msgid "About Author"
+msgstr ""
+#
+msgid "About Weather Routing"
+msgstr ""
+#
+msgid "Bearing"
+msgstr ""
+#
+msgid "CTS"
+msgstr ""
+#
+msgid "Chart Route"
+msgstr ""
+#
+msgid "Close"
+msgstr ""
+#
+msgid "Course to steer"
+msgstr ""
+#
+msgid "DR"
+msgstr ""
+#
+msgid "DR Route has been calculated!"
+msgstr ""
+#
+msgid "DR Route has been charted!"
+msgstr ""
+#
+msgid "Daytime"
+msgstr ""
+#
+msgid "Delete"
+msgstr ""
+#
+msgid "Delete All Routes"
+msgstr ""
+#
+msgid "Delete all routes?\n"
+msgstr ""
+#
+msgid "Depart From"
+msgstr ""
+#
+msgid "Departure Time"
+msgstr ""
+#
+msgid "Departure Time (Y/m/d h:m)"
+msgstr ""
+#
+msgid "Destination"
+msgstr ""
+#
+msgid "Display tidal direction"
+msgstr ""
+#
+msgid "Display tidal rates (knots)"
+msgstr ""
+#
+msgid "Distance"
+msgstr ""
+#
+msgid "Duration"
+msgstr ""
+#
+msgid "ETA"
+msgstr ""
+#
+msgid "ETA Route has been charted!"
+msgstr ""
+#
+msgid "ETA Routes have been calculated!"
+msgstr ""
+#
+msgid "End"
+msgstr ""
+#
+msgid "End Time"
+msgstr ""
+#
+msgid "EndTime"
+msgstr ""
+#
+msgid "Error in calculation. Please check input!"
+msgstr ""
+#
+msgid "EvTwilight"
+msgstr ""
+#
+msgid "Export DR Positions in GPX file as"
+msgstr ""
+#
+msgid "Export ETA Positions in GPX file as"
+msgstr ""
+#
+msgid "Failed to load file."
+msgstr ""
+#
+msgid "Failed to load file: "
+msgstr ""
+#
+msgid "Failed to save xml file: "
+msgstr ""
+#
+msgid "File contains duplicate position name, discarding\n"
+msgstr ""
+#
+msgid "Fill Colour"
+msgstr ""
+#
+msgid "From"
+msgstr ""
+#
+msgid "Grib plugin version not supported."
+msgstr ""
+#
+msgid "Import GPX Route file"
+msgstr ""
+#
+msgid "Invalid xml file"
+msgstr ""
+#
+msgid "LMT @ Location"
+msgstr ""
+#
+msgid "Latitude"
+msgstr ""
+#
+msgid "Leg"
+msgstr ""
+#
+msgid "Load"
+msgstr ""
+#
+msgid "Loading"
+msgstr ""
+#
+msgid "Local @ PC"
+msgstr ""
+#
+msgid "Longitude"
+msgstr ""
+#
+msgid "MoTwilight"
+msgstr ""
+#
+msgid "Name"
+msgstr ""
+#
+msgid "Nighttime"
+msgstr ""
+#
+msgid "No routes found. Please make a route"
+msgstr ""
+#
+msgid "No routes have been calculated"
+msgstr ""
+#
+msgid "OK"
+msgstr ""
+#
+msgid "Open the GRIB plugin and select a time!"
+msgstr ""
+#
+msgid "Plan Speed"
+msgstr ""
+#
+msgid "Please enter a name for the route!"
+msgstr ""
+#
+msgid "Please select a route"
+msgstr ""
+#
+msgid "Please select or generate a route"
+msgstr ""
+#
 msgid "Preferences"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:50
-msgid "Tiller Control"
+#
+msgid "Properties"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:71
-msgid "|"
+#
+msgid "Route"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:74
-msgid "Midships"
+#
+msgid "Route Calculation Type:"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:95
+#
+msgid "Route Properties"
+msgstr ""
+#
+msgid "Route Table"
+msgstr ""
+#
+msgid "Route name already exists, please edit the name"
+msgstr ""
+#
+msgid ""
+"Route start date is not compatible with this Grib \n"
+" Or Grib is not available for part of the route"
+msgstr ""
+#
+msgid "RouteCalculation Type:"
+msgstr ""
+#
+msgid "RouteName"
+msgstr ""
+#
+msgid "Routes"
+msgstr ""
+#
+msgid "Speed"
+msgstr ""
+#
 msgid "Start"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:102
-msgid "Stop"
+#
+msgid "Start Time"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:120
-msgid "  Heading:  "
+#
+msgid "StartTime"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:126
-msgid "000"
+#
+msgid "Sunrise"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:132
-msgid "             Speed: "
+#
+msgid "Sunset"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:138 src/ShipDrivergui.cpp:165
-msgid "0"
+#
+msgid ""
+"The oTidalRoute plugin for opencpn is intended to calculate routes based on "
+"computerized tidal data.\n"
+"\n"
+"License: GPLv3+\n"
+"\n"
+"Source Code:\n"
+"https://github.com/rasbats/oTidalRoute_pi\n"
+"\n"
+"Author:\n"
+"Mike Rossiter\n"
+"\n"
+"Many thanks to all translators and testers."
 msgstr ""
-
-#: src/ShipDrivergui.cpp:144
-msgid "        Kts"
+#
+msgid "Tidal Current Arrow Colour"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:175
-msgid "Speed Control"
+#
+msgid "Tidal Rate"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:179
-msgid "100"
+#
+msgid "Tidal Routes"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:199
-msgid "Stby"
+#
+msgid "Tidal Set"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:202
-msgid "Hand Steering"
+#
+msgid "TidalRoutingInformation.html"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:207
-msgid "Auto"
+#
+msgid "Time"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:210
-msgid "Autopilot Control"
+#
+msgid "Time Enroute"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:225
-msgid "-1"
+#
+msgid "Times shown as"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:231
-msgid "-10"
+#
+msgid "To Waypoint"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:237
-msgid "+10"
+#
+msgid "Total Distance"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:243
-msgid "+1"
+#
+msgid "Towards"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:295
-msgid "AIS"
+#
+msgid "Type"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:302
-msgid "Transmit"
+#
+msgid "UTC"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:305
-msgid "Save to file"
+#
+msgid ""
+"Unable to calculate ETA over two legs at this speed. \n"
+"\n"
+" Aborting"
 msgstr ""
-
-#: src/ShipDrivergui.cpp:312
-msgid "MMSI"
+#
+msgid ""
+"Unable to compute speed over ground with this tide and boat speed, \n"
+"\n"
+" Aborting"
 msgstr ""
-
-#: src/ShipDrivergui_impl.cpp:85
-msgid "Please right-click and choose vessel start position"
+#
+msgid "Unrecognized xml node"
 msgstr ""
-
-#: src/ShipDrivergui_impl.cpp:90
-msgid "MMSI must be a number, please change in Preferences"
+#
+#, c-format
+msgid "Use versions %d.%d to %d.%d"
 msgstr ""
-
+#
+msgid "Waypoint Properties"
+msgstr ""
+#
+msgid "Waypoints"
+msgstr ""
+#
+msgid "Weather Routing"
+msgstr ""
+#
+msgid "error in input range validation"
+msgstr ""
+#
+msgid "oTidalRoute"
+msgstr ""
+#
+msgid "oTidalRoute Plugin Version"
+msgstr ""
+#
+msgid "otidalroute"
+msgstr ""
+#
+msgid "otidalroute PlugIn for OpenCPN"
+msgstr ""
+#
+msgid ""
+"otidalroute PlugIn for OpenCPN\n"
+"Calculates EP positions/Courses using Grib tidal current data.\n"
+"\n"
+"\t\t\t   "
+msgstr ""
+#
+msgid "rte Invalid xml file"
+msgstr ""

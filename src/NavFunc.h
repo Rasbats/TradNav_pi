@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  TradNav Plugin
+ * Purpose:  DR Plugin
  * Author:   SaltyPaws
  *
  ***************************************************************************
@@ -36,14 +36,10 @@
 #include <wx/msgdlg.h>
 
 
-
 #ifndef PI
 #define PI        3.1415926535897931160E0      /* pi */
 #endif
 #define DEGREE    (PI/180.0)
-
-#define d2r (M_PI / 180.0)
-#define r2d (180.0 / M_PI)
 
 const inline double Tol(void) { return 1.0e-9; }
 
@@ -67,14 +63,14 @@ double NMtom(double NM);
 //bool DistVincenty(double lat1, double lon1, double lat2, double lon2, double *dist, double *fwdAz, double *revAz);
 //void distRhumb(double lat1,double lon1, double lat2, double lon2, double *distance, double *brng);
 //bool destRhumb(double lat1, double lon1, double brng, double dist, double* lat2, double* lon2);
-bool destLoxotradnavome(double lat1, double lon1, double brng, double dist, double* lat2, double* lon2);
+bool destLoxodrome(double lat1, double lon1, double brng, double dist, double* lat2, double* lon2);
 
 // New functions
 void DistanceBearingMercator(double lat0, double lon0, double lat1, double lon1, double *dist, double *brg);
 void toSM_ECC(double lat, double lon, double lat0, double lon0, double *x, double *y);
 //void PositionBearingDistanceMercator(double lat, double lon, double brg, double dist,
 	//double *dlat, double *dlon);
-//void ll_gc_ll(double lat, double lon, double brg, double dist, double *dlat, double *dlon);
+void ll_gc_ll(double lat, double lon, double brg, double dist, double *dlat, double *dlon);
 
 double DistGreatCircle(double slat, double slon, double dlat, double dlon);
 

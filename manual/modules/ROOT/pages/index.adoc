@@ -1,97 +1,264 @@
-= Dead Reckoning
+= otidalplan
 
-image:dr_pi.png[role=left] .
+image:0.png[]
 
-Add DR positions to a route by means of editing a gpx file, which has
-been exported from 'Route Manager'.
+== Aim
 
-== Installation
+Estimate positions along a route and final ETA using data from tidal
+current harmonics.
 
-Available in the managed plugins catalog.
+== References
 
-image:managed_plugin.png[role=left] .
+== Requirements
 
-== Links
+`OpenCPN 5.2.4 and above. For the initial download an Internet connection is needed. The plugin tarball can be downloaded and imported to OpenCPN.`
 
-* Source: https://github.com/Rasbats/DR_pi[Gihub Repository]  
-* Releases: https://github.com/Rasbats/DR_pi/releases[Github Releases]  
-* Downloads: https://opencpn.org/OpenCPN/plugins/dreckoning.html[Website Download]  
-* Forum:
-http://www.cruisersforum.com/forums/f134/dead-reckoning-plugin-for-ocpn-82864.html[Cruiser's Forum Dead Reckoning thread]  
-* Forum:
-http://www.cruisersforum.com/forums/f134/dr-plugin-splitting-up-gpx-route-files-114482.html[DR plugin splitting up gpx routefiles]  
+== 1. What the plugin does
 
-== Definition
-
-In navigation, dead reckoning or dead-reckoning (also ded for deduced
-reckoning or *DR*) is the process of calculating one's current
-*position* by using a previously determined *position*, or fix, and
-advancing that *position* based upon known or estimated speeds over
-elapsed time and course.
-
-== 1. What and Why
-
-The DR plugin is a means of adding DR positions to a route. Because the
-plugin cannot access 'Route Manager' directly it works by editing a gpx
-file, which has been exported from 'Route Manager'.
-
-DR speed and the time between the DR positions can be changed before the
-DR gpx is finally created.
-
-This plugin is a temporary solution to the problem of creating DR
-positions. The *Draw plugin* now allows the creation of DR positions for
-course legs.
+Set and rate of the tidal current from tidal current harmonics is used
+to calculate EP positions along a route and a final ETA. Courses to
+steer and speeds made good are available. Starting at different times
+the ETA for these departure times can be compared. This takes into
+account the different tidal currents likely to be experienced.
 
 == 2. Install
 
-Copy 'DR_pi.dll' to the plugins folder. Start OpenCPN. Tools/Options and
-select 'Enable' for the DR entry.
+The plugin is available in the Beta catalog of the plugin manager. After
+installation the otidalplan plugin is added to the list and can be
+enabled.
 
-image::tools_plugins.png[]
+In the list of available plugins:
 
-== 3. Standard actions
+image:1.png[]
 
-Save the route which you want to add DR positions to by using 'Route
-Manager'. Make a note of the folder where this original route file can
-be found.
+image:2.png[]
 
-image::export_route.png[]
+image:3.png[]
 
-Start DR:
+Ready to use:
 
-image::menu_bar.png[]
+image:4.png[]
 
-The main page of the plugin appears:
+And in the toolbar:
 
-image::add_options.png[]
+image:5.png[]
 
-The DR speed and interval between DR positions have been added. The DR
-route name is entered in the bottom box.
+Showing the plugin dialog: 
 
-The process of creating the DR route is started by pressing 'Generate
-GPX'. A file dialog box appears.
+image:6.png[]
 
-image::import_gpx.png[]
+== Basic method
 
-Select the route GPX file where DR positions will be added.
+[arabic]
+. Attach the tidal current stations for the planned route. This is based
+on DR positions and the maximum distance from the station.
 
-Immediately after selecting this file a new file dialog box appears.
+image:7.png[]
 
-image::export_dr_gpx.png[]
+image:8.png[]
 
-After pressing 'Save' the route_dr gpx file is created in the folder you
-have chosen. If the original file is not needed you can use the same
-file name and the original file will be over-written.
+[arabic, start=2]
+. Enter the name for the route containing the EP. Tick the box to show
+the calculated route.
+. Calculate the ETA. This creates a new route containing the EP
+positions.
 
-The plugin can now be closed.
+image:9.png[]
 
-Using 'Route Manager' import the DR gpx:
+image:10.png[]
 
-image::import_dr_gpx.png[]
+image:11.png[]
 
-image::import_dr_gpx_route_manager.png[]
+== Information Available
 
-image::show_dr_gpx.png[]
+== Summary
 
-The DR route is now available. To avoid confusion the original route can
-be hidden by using the 'Eye' symbol.
+Available from the menu:
+
+image:12.png[]
+
+image:13.png[]
+
+== Route Table
+
+image:14.png[]
+
+image:15.png[]
+
+image:16.png[]
+
+== Options
+
+== GPX file
+
+A GPX file of the EP route can be created at the same time as the new
+route is calculated. Tick the box to allow this.
+
+image:17.png[]
+
+The GPX can be imported into OpenCPN using the Route and Mark Manager
+
+image:18.png[]
+
+image:19.png[]
+
+== Tidal current harmonics
+
+The harmonics installed with OpenCPN may not cover the area you are
+navigating. Another set of harmonics can be used by selecting the folder
+containing HARMONIC.idx.
+
+image:20.png[]
+
+== Adjust accuracy
+
+The tidal current stations associated with a route are used based on DR
+and maximum distance from that DR. By adjusting these two parameters
+greater accuracy may be achieved.
+
+image:21.png[]
+
+== Use different departure times
+
+image:22.png[]
+
+The Summary table from the menu shows the effect of using different
+departure times:
+
+image:24.png[]
+
+Route with EP positions can be charted from the list of routes:
+
+image:23.png[]
+
+=== Welcome to the otidalplan_pi wiki!
+
+image:0.png[]
+
+== Aim
+
+Estimate positions along a route and final ETA using data from tidal
+current harmonics.
+
+== References
+
+== Requirements
+
+`OpenCPN 5.2.4 and above. For the initial download an Internet connection is needed. The plugin tarball can be downloaded and imported to OpenCPN.`
+
+== 1. What the plugin does
+
+Set and rate of the tidal current from tidal current harmonics is used
+to calculate EP positions along a route and a final ETA. Courses to
+steer and speeds made good are available. Starting at different times
+the ETA for these departure times can be compared. This takes into
+account the different tidal currents likely to be experienced.
+
+[[2-install-1]]
+== 2. Install
+
+The plugin is available in the Beta catalog of the plugin manager. After
+installation the otidalplan plugin is added to the list and can be
+enabled.
+
+In the list of available plugins:
+
+image:1.png[]
+
+image:2.png[]
+
+image:3.png[]
+
+Ready to use:
+
+image:4.png[]
+
+And in the toolbar:
+
+image:5.png[]
+
+Showing the plugin dialog: [[/images/6.png[]
+
+== Basic method
+
+[arabic]
+. Attach the tidal current stations for the planned route. This is based
+on DR positions and the maximum distance from the station.
+
+image:7.png[]
+
+image:8.png[]
+
+[arabic, start=2]
+. Enter the name for the route containing the EP. Tick the box to show
+the calculated route.
+. Calculate the ETA. This creates a new route containing the EP
+positions.
+
+image:9.png[]
+
+image:10.png[]
+
+image:11.png[]
+
+=== Information Available
+
+== Summary
+
+Available from the menu:
+
+image:12.png[]
+
+image:13.png[]
+
+== Route Table
+
+image:14.png[]
+
+image:15.png[]
+
+image:16.png[]
+
+== Options
+
+== GPX file
+
+A GPX file of the EP route can be created at the same time as the new
+route is calculated. Tick the box to allow this.
+
+image:17.png[]
+
+The GPX can be imported into OpenCPN using the Route and Mark Manager
+
+image:18.png[]
+
+image:19.png[]
+
+== Tidal current harmonics
+
+The harmonics installed with OpenCPN may not cover the area you are
+navigating. Another set of harmonics can be used by selecting the folder
+containing HARMONIC.idx.
+
+image:20.png[]
+
+== Adjust accuracy
+
+The tidal current stations associated with a route are used based on DR
+and maximum distance from that DR. By adjusting these two parameters
+greater accuracy may be achieved.
+
+image:21.png[]
+
+== Use different departure times
+
+image:22.png[]
+
+The Summary table from the menu shows the effect of using different
+departure times:
+
+image:24.png[]
+
+Route with EP positions can be charted from the list of routes:
+
+image:23.png[]

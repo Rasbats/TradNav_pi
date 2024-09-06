@@ -1,31 +1,14 @@
-# shipdriver\_pi README
+# finSAR_edit_pi
 
-A plugin for OpenCPN. Almost a simulator or is it a game?
+Compiling locally (Windows)
+============================
 
-More user info: https://opencpn.org/OpenCPN/plugins/shipdriver.html
+#1 Run buildwin/win_deps.bat with the argument wx32 as Administrator.
+_$win_deps.bat wx32_
 
-Building is documented in INSTALL.md
+This creates a cache folder containing wxWidgets-3.2.4 which will be compatible with OpenCPN 5.9.x/5.10.
 
-The plugin uses a continous integration setup described in the
-[wiki](https://github.com/Rasbats/managed_plugins/wiki/Alternative-Workflow)
-This setup is also able to push all updated metadata files to a clone
-of https://github.com/OpenCPN/plugins in order to simplify pull requests
-against this site.
+#2 Run the batch file _leamas..finSAR_edit_pi.bat_.
 
-
-## Copyright and licensing
-
-This software is Copyright (c) Mike Rossiter 2017-2020. It is distributed
-under the terms of the Gnu Public License version 3 or, at your option,
-any later version. See the file COPYING for details.
-
-Icons made by Freepik(http://www.freepik.com) from
-Flaticon(https://www.flaticon.com/) and is licensed using Creative Commons
-BY 3.0 (http://creativecommons.org/licenses/by/3.0/)
-
-The documentation in the directory manual is distributed using a
-CC BY-SA 4.0 license.
-
-The software contains open-source licensed files under different licenses
-including Expat, Apache-2  and Libpng. See the source files for details.
-
+This makes a _build_ folder and generates a Visual Studio solution file. This can be used for updates to the project. The batch
+file continues and if there are no errors makes a tarball that can be imported into OpenCPN (5.9.x/5.10).

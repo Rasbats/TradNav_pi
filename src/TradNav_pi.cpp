@@ -2,11 +2,10 @@
  *
  * Project:  OpenCPN
  * Purpose:  TradNav Plugin
- * Author:   Mike Rossiter
+ * Author:   David Register, Mike Rossiter
  *
  ***************************************************************************
- *   Copyright (C) 2013 by Mike Rossiter                                *
- *   $EMAIL$                                                               *
+ *   Copyright (C) 2010 by David S. Register   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,7 +20,7 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  USA.             *
  ***************************************************************************
  */
 
@@ -29,40 +28,25 @@
 
 #ifndef WX_PRECOMP
 #include "wx/wx.h"
-#endif // precompiled headers
+#include <wx/glcanvas.h>
+#endif  // precompiled headers
+
+#include <wx/fileconf.h>
+#include <wx/stdpaths.h>
+
+#include "ocpn_plugin.h"
 
 #include "TradNav_pi.h"
-#include "TradNavgui.h"
-#include "TradNavgui_impl.h"
-#include "pidc.h"
-#include "tdEventHandler.h"
-#include <wx/dir.h>
-#include <wx/filename.h>
-#include <wx/object.h>
-#include "tdPath.h"
-
-wxWindow* g_current_canvas;
-int g_current_canvas_index;
-wxWindow* g_parent_window;
-TradNav_pi* g_tradnav_pi;
-
-tdEventHandler* g_tdEventHandler;
-PlugIn_ViewPort g_VP;
-piDC* g_pDC;
-bool g_bOpenGL;
-
-wxString* g_PrivateDataDir;
-wxString* g_pData;
-bearingList* g_pBearingList;
+#include "TradNavUIDialogBase.h"
+#include "TradNavUIDialog.h"
 
 // the class factories, used to create and destroy instances of the PlugIn
 
-extern "C" DECL_EXP opencpn_plugin* create_pi(void* ppimgr)
-{
-    return new TradNav_pi(ppimgr);
+extern "C" DECL_EXP opencpn_plugin *create_pi(void *ppimgr) {
+  return new TradNav_pi(ppimgr);
 }
 
-extern "C" DECL_EXP void destroy_pi(opencpn_plugin* p) { delete p; }
+extern "C" DECL_EXP void destroy_pi(opencpn_plugin *p) { delete p; }
 
 //---------------------------------------------------------------------------------------------------------
 //
@@ -78,706 +62,556 @@ extern "C" DECL_EXP void destroy_pi(opencpn_plugin* p) { delete p; }
 //
 //---------------------------------------------------------------------------------------------------------
 
-TradNav_pi::TradNav_pi(void* ppimgr)
-    : opencpn_plugin_117(ppimgr)
-{
-    // Create the PlugIn icons
-    initialize_images();
+TradNav_pi::TradNav_pi(void *ppimgr) : opencpn_plugin_118(ppimgr) {
+  // Create the PlugIn icons
+  initialize_images();
 
-    wxFileName fn;
-    wxString tmp_path;
+  wxFileName fn;
 
-    tmp_path = GetPluginDataDir("TradNav_pi");
-    fn.SetPath(tmp_path);
-    fn.AppendDir(_T("data"));
-    fn.SetFullName("tradnav_pi_panel.png");
+  auto path = GetPluginDataDir("TradNav_pi");
+  fn.SetPath(path);
+  fn.AppendDir("data");
+  fn.SetFullName("TradNav_panel_icon.png");
 
-    wxString shareLocn = fn.GetFullPath();
-    wxImage panelIcon(shareLocn);
+  path = fn.GetFullPath();
 
-    if (panelIcon.IsOk())
-        m_panelBitmap = wxBitmap(panelIcon);
-    else
-        wxLogMessage(_T("    TradNav_pi panel icon NOT loaded"));
+  wxInitAllImageHandlers();
 
-    wxString* l_pDir = new wxString(*GetpPrivateApplicationDataLocation());
-    appendOSDirSlash(l_pDir);
-    l_pDir->Append(_T("plugins"));
-    appendOSDirSlash(l_pDir);
-    if (!wxDir::Exists(*l_pDir))
-        wxMkdir(*l_pDir);
-    l_pDir->Append(_T("TradNav_pi"));
-    appendOSDirSlash(l_pDir);
-    if (!wxDir::Exists(*l_pDir))
-        wxMkdir(*l_pDir);
-    g_PrivateDataDir = new wxString;
-    g_PrivateDataDir->Append(*l_pDir);
-    g_pData = new wxString(*l_pDir);
-    g_pData->append(wxS("data"));
-    appendOSDirSlash(g_pData);
-    if (!wxDir::Exists(*g_pData))
-        wxMkdir(*g_pData);
+  wxLogDebug(wxString("Using icon path: ") + path);
+  if (!wxImage::CanRead(path)) {
+    wxLogDebug("Initiating image handlers.");
+    wxInitAllImageHandlers();
+  }
+  wxImage panelIcon(path);
+  if (panelIcon.IsOk())
+    m_panelBitmap = wxBitmap(panelIcon);
+  else
+    wxLogWarning("TradNav panel icon has NOT been loaded");
 
-    m_bShowTradNav = false;
+  m_bShowTradNav = false;
 }
 
-TradNav_pi::~TradNav_pi(void)
-{
-    delete _img_TradNav_pi;
-    delete _img_TradNav;
+TradNav_pi::~TradNav_pi(void) {
+  delete _img_TradNav_pi;
+  delete _img_TradNav;
 }
 
-int TradNav_pi::Init(void)
-{
-    AddLocaleCatalog(_T("opencpn-TradNav_pi"));
+int TradNav_pi::Init(void) {
+  AddLocaleCatalog(_T("opencpn-TradNav_pi"));
 
-    // Set some default private member parameters
-    m_route_dialog_x = 0;
-    m_route_dialog_y = 0;
-    ::wxDisplaySize(&m_display_width, &m_display_height);
+  // Set some default private member parameters
+  m_TradNav_dialog_x = 0;
+  m_TradNav_dialog_y = 0;
+  m_TradNav_dialog_sx = 200;
+  m_TradNav_dialog_sy = 400;
+  m_pTradNavDialog = NULL;
+  m_pTradNavOverlayFactory = NULL;
+  m_bTradNavShowIcon = true;
 
-    g_tradnav_pi = this;
+  ::wxDisplaySize(&m_display_width, &m_display_height);
 
-    //    Get a pointer to the opencpn display canvas, to use as a parent for
-    //    the POI Manager dialog
-    m_parent_window = PluginGetFocusCanvas();
-    g_parent_window = m_parent_window;
-    clickn = 0;
-    currentSegment = NULL;
-    rangeCircle = NULL;
-    m_pSelectedPath = NULL;
-    m_bFinish = false;
+  m_pconfig = GetOCPNConfigObject();
 
-    g_pBearingList = new bearingList;
+  //    And load the configuration items
+  LoadConfig();
 
-    // Create an OCPN Draw event handler
-    g_tdEventHandler = new tdEventHandler(g_tradnav_pi);
-    g_tdEventHandler->SetWindow(m_parent_window);
+  err_msg = NULL;
+  wxString sql;
 
-    //    Get a pointer to the opencpn configuration object
-    m_pconfig = GetOCPNConfigObject();
+  // Establish the location of the database file
+  wxString dbpath;
+  dbpath = StandardPath() + _T(DATABASE_NAME);
+  // wxMessageBox(dbpath);
+  bool newDB = !wxFileExists(dbpath);
+  b_dbUsable = true;
 
-    //    And load the configuration items
-    LoadConfig();
+  // void *cache;  // SOLUTION
 
-    //    This PlugIn needs a toolbar icon, so request its insertion
-    if (m_bTradNavShowIcon)
+  ret = sqlite3_open_v2(dbpath.mb_str(), &m_database,
+                        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+  if (ret != SQLITE_OK) {
+    wxLogMessage(_T("FINSAR_PI: cannot open '%s': %s\n"), DATABASE_NAME,
+                 sqlite3_errmsg(m_database));
+    sqlite3_close(m_database);
+    b_dbUsable = false;
+  }
+  if (newDB && b_dbUsable) {
+    // create empty db
+    sql =
+        "CREATE TABLE RTZ ("
+        "route_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "route_name TEXT,"
+        "created INTEGER,"
+        "submitted INTEGER)";
+    dbQuery(sql);
 
-#ifdef TradNav_USE_SVG
-        m_leftclick_tool_id = InsertPlugInToolSVG(_T("TradNav"), _svg_tradnav,
-            _svg_tradnav, _svg_tradnav_toggled, wxITEM_CHECK, _("TradNav"),
-            _T(""), NULL, CALCULATOR_TOOL_POSITION, 0, this);
+    Add_RTZ_db("-----");
+
+    sql =
+        "CREATE TABLE EXT ("
+        "ext_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "extensions_file TEXT,"
+        "route_name TEXT,"
+        "rtz_date_stamp TEXT,"
+        "created INTEGER,"
+        "submitted INTEGER)";
+    dbQuery(sql);
+    wxDateTime date_stamp = wxDateTime::Now();
+    date_stamp.MakeUTC(false);
+    wxString dateLabel = date_stamp.Format(_T("%Y-%m-%d %H:%M:%S"));
+    Add_EXT_db("-----.xml", "-----", dateLabel);
+  }
+  // Make the folder for the RTZ files
+  wxString rtzpath;
+  rtzpath = StandardPathRTZ();
+  wxString extpath;
+  extpath = StandardPathEXT();
+
+ 
+
+  // Get a pointer to the opencpn display canvas, to use as a parent for the
+  // TradNav dialog
+  m_parent_window = GetOCPNCanvasWindow();
+
+  //    This PlugIn needs a toolbar icon, so request its insertion if enabled
+  //    locally
+  if (m_bTradNavShowIcon)
+#ifdef ocpnUSE_SVG
+    m_leftclick_tool_id = InsertPlugInToolSVG(
+        _T("TradNav"), _svg_TradNav, _svg_TradNav,
+        _svg_TradNav_toggled, wxITEM_CHECK, _("TradNav"), _T(""), NULL,
+        TradNav_TOOL_POSITION, 0, this);
 #else
-        m_leftclick_tool_id
-            = InsertPlugInTool(_T(""), _img_TradNav, _img_TradNav, wxITEM_CHECK,
-                _("TradNav"), _T(""), NULL, CALCULATOR_TOOL_POSITION, 0, this);
+    m_leftclick_tool_id = InsertPlugInTool(
+        _T(""), _img_TradNav, _img_TradNav, wxITEM_CHECK,
+        _("TradNav"), _T(""), NULL, TradNav_TOOL_POSITION, 0, this);
 #endif
-   
-    m_pDialog = NULL;
 
-    return (WANTS_OVERLAY_CALLBACK | WANTS_CURSOR_LATLON
-        | WANTS_TOOLBAR_CALLBACK | WANTS_CONFIG
-        | INSTALLS_CONTEXTMENU_ITEMS | WANTS_NMEA_EVENTS | USES_AUI_MANAGER
-        | WANTS_PREFERENCES | WANTS_ONPAINT_VIEWPORT | WANTS_PLUGIN_MESSAGING
-        | WANTS_OPENGL_OVERLAY_CALLBACK | WANTS_LATE_INIT | WANTS_MOUSE_EVENTS
-        | WANTS_KEYBOARD_EVENTS);
+  return (WANTS_OVERLAY_CALLBACK | WANTS_OPENGL_OVERLAY_CALLBACK |
+          WANTS_TOOLBAR_CALLBACK | WANTS_CURSOR_LATLON | INSTALLS_TOOLBAR_TOOL |
+          WANTS_CONFIG | WANTS_ONPAINT_VIEWPORT | WANTS_PLUGIN_MESSAGING |
+          WANTS_NMEA_EVENTS);
 }
 
-bool TradNav_pi::DeInit(void)
-{
-    //    Record the dialog position
-    if (NULL != m_pDialog) {
-        // Capture dialog position
-        wxPoint p = m_pDialog->GetPosition();
-        SetCalculatorDialogX(p.x);
-        SetCalculatorDialogY(p.y);
-        if ((m_pDialog->myTimer != NULL)
-            && (m_pDialog->myTimer
-                    ->IsRunning())) { // need to stop the timer or crash on
-            // exit
-            m_pDialog->myTimer->Stop();
-        }
+bool TradNav_pi::DeInit(void) {
+  if (m_pTradNavDialog) {
+    m_pTradNavDialog->Close();
+    delete m_pTradNavDialog;
+    m_pTradNavDialog = NULL;
+  }
 
-        m_pDialog->Close();
-        delete m_pDialog;
-        m_pDialog = NULL;
+  delete m_pTradNavOverlayFactory;
+  m_pTradNavOverlayFactory = NULL;
 
-        m_bShowTradNav = false;
-        SetToolbarItemState(m_leftclick_tool_id, m_bShowTradNav);
-    }
-
-    SaveConfig();
-
-    RequestRefresh(m_parent_window); // refresh main window
-
-    return true;
+  return true;
 }
 
 int TradNav_pi::GetAPIVersionMajor() { return atoi(API_VERSION); }
 
-int TradNav_pi::GetAPIVersionMinor()
-{
-    std::string v(API_VERSION);
-    size_t dotpos = v.find('.');
-    return atoi(v.substr(dotpos + 1).c_str());
+int TradNav_pi::GetAPIVersionMinor() {
+  std::string v(API_VERSION);
+  size_t dotpos = v.find('.');
+  return atoi(v.substr(dotpos + 1).c_str());
 }
 
 int TradNav_pi::GetPlugInVersionMajor() { return PLUGIN_VERSION_MAJOR; }
 
 int TradNav_pi::GetPlugInVersionMinor() { return PLUGIN_VERSION_MINOR; }
 
-wxBitmap* TradNav_pi::GetPlugInBitmap() { return &m_panelBitmap; }
+wxBitmap *TradNav_pi::GetPlugInBitmap() { return &m_panelBitmap; }
 
-wxString TradNav_pi::GetCommonName() { return _("TradNav"); }
+wxString TradNav_pi::GetCommonName() { return PLUGIN_API_NAME; }
 
-wxString TradNav_pi::GetShortDescription()
-{
-    return _("TradNav Positions using GPX files");
-}
+wxString TradNav_pi::GetShortDescription() { return PKG_SUMMARY; }
 
-wxString TradNav_pi::GetLongDescription()
-{
-    return _("Creates GPX files with\n\
-TradNav Positions");
-}
+wxString TradNav_pi::GetLongDescription() { return PKG_DESCRIPTION; }
+
+void TradNav_pi::SetDefaults(void) {}
 
 int TradNav_pi::GetToolbarToolCount(void) { return 1; }
 
-void TradNav_pi::SetColorScheme(PI_ColorScheme cs)
-{
-    if (NULL == m_pDialog)
-        return;
+void TradNav_pi::OnToolbarToolCallback(int id) {
+  if (!m_pTradNavDialog) {
+    m_pTradNavDialog = new TradNavUIDialog(m_parent_window, this);
+    wxPoint p = wxPoint(m_TradNav_dialog_x, m_TradNav_dialog_y);
+    m_pTradNavDialog->pPlugIn = this;
+    m_pTradNavDialog->Move(
+        0,
+        0);  // workaround for gtk autocentre dialog behavior
+    m_pTradNavDialog->Move(p);
 
-    DimeWindow(m_pDialog);
+    // Clear route & mark manager
+    auto uids = GetRouteGUIDArray();
+    for (size_t i = 0; i < uids.size(); i++) {
+      DeletePlugInRoute(uids[i]);
+    }
+
+    /*
+    // Fill the choices
+    wxArrayString items;
+    if (m_pTradNavDialog->m_choiceObjectBearing) {
+      int count = 359;
+      for (int n = 0; n < count; n++) {
+        items.Add(wxString::Format("%i",n));
+      }
+    }
+
+    m_pTradNavDialog->m_choiceObjectBearing->Set(items);
+*/   
+
+    // Create the drawing factory
+    m_pTradNavOverlayFactory =
+        new TradNavOverlayFactory(*m_pTradNavDialog);
+    m_pTradNavOverlayFactory->SetParentSize(m_display_width,
+                                                m_display_height);
+
+    wxMenu dummy_menu;
+    m_position_menu_id = AddCanvasContextMenuItem(
+        new wxMenuItem(&dummy_menu, -1, _("TradNav sets this range")), this);
+    SetCanvasContextMenuItemViz(m_position_menu_id, true);
+  }
+
+  // Qualify the TradNav dialog position
+  bool b_reset_pos = false;
+
+#ifdef __WXMSW__
+  //  Support MultiMonitor setups which an allow negative window positions.
+  //  If the requested window does not intersect any installed monitor,
+  //  then default to simple primary monitor positioning.
+  RECT frame_title_rect;
+  frame_title_rect.left = m_TradNav_dialog_x;
+  frame_title_rect.top = m_TradNav_dialog_y;
+  frame_title_rect.right = m_TradNav_dialog_x + m_TradNav_dialog_sx;
+  frame_title_rect.bottom = m_TradNav_dialog_y + 30;
+
+  if (NULL == MonitorFromRect(&frame_title_rect, MONITOR_DEFAULTTONULL))
+    b_reset_pos = true;
+#else
+  //    Make sure drag bar (title bar) of window on Client Area of screen, with
+  //    a little slop...
+  wxRect window_title_rect;  // conservative estimate
+  window_title_rect.x = m_TradNav_dialog_x;
+  window_title_rect.y = m_TradNav_dialog_y;
+  window_title_rect.width = m_TradNav_dialog_sx;
+  window_title_rect.height = 30;
+
+  wxRect ClientRect = wxGetClientDisplayRect();
+  ClientRect.Deflate(
+      60, 60);  // Prevent the new window from being too close to the edge
+  if (!ClientRect.Intersects(window_title_rect)) b_reset_pos = true;
+
+#endif
+
+  if (b_reset_pos) {
+    m_TradNav_dialog_x = 20;
+    m_TradNav_dialog_y = 170;
+    m_TradNav_dialog_sx = 300;
+    m_TradNav_dialog_sy = 540;
+  }
+
+  // Toggle TradNav overlay display
+  m_bShowTradNav = !m_bShowTradNav;
+
+  //    Toggle dialog?
+  if (m_bShowTradNav) {
+    m_pTradNavDialog->Show();
+  } else {
+    m_pTradNavDialog->Hide();
+  }
+
+  // Toggle is handled by the toolbar but we must keep plugin manager b_toggle
+  // updated to actual status to ensure correct status upon toolbar rebuild
+  SetToolbarItemState(m_leftclick_tool_id, m_bShowTradNav);
+
+  RequestRefresh(m_parent_window);  // refresh main window
 }
 
-void TradNav_pi::OnToolbarToolCallback(int id)
-{
+void TradNav_pi::OnTradNavDialogClose() {
+  m_bShowTradNav = false;
+  SetToolbarItemState(m_leftclick_tool_id, m_bShowTradNav);
 
-    if (NULL == m_pDialog) {
-        m_pDialog = new Dlg(m_parent_window, this);
-        m_pDialog->Move(wxPoint(m_route_dialog_x, m_route_dialog_y));
-        m_pDialog->myTimer = new wxTimer(m_pDialog);
-        // Create the drawing factory
-    }
+  m_pTradNavDialog->Hide();
 
-    m_pDialog->Fit();
-    // Toggle
-    m_bShowTradNav = !m_bShowTradNav;
+  SaveConfig();
 
-    //    Toggle dialog?
-    if (m_bShowTradNav) {
-        m_pDialog->Show();
-    } else
-        m_pDialog->Hide();
-
-    // Toggle is handled by the toolbar but we must keep plugin manager b_toggle
-    // updated to actual status to ensure correct status upon toolbar rebuild
-    SetToolbarItemState(m_leftclick_tool_id, m_bShowTradNav);
-
-    RequestRefresh(m_parent_window); // refresh main window
+  RequestRefresh(m_parent_window);  // refresh main window
 }
 
-bool TradNav_pi::LoadConfig(void)
-{
-    wxFileConfig* pConf = (wxFileConfig*)m_pconfig;
-
-    if (pConf) {
-        pConf->SetPath(_T( "/Settings/TradNav_pi" ));
-        pConf->Read(_T( "ShowTradNavIcon" ), &m_bTradNavShowIcon, 1);
-
-        m_route_dialog_x = pConf->Read(_T ( "DialogPosX" ), 20L);
-        m_route_dialog_y = pConf->Read(_T ( "DialogPosY" ), 20L);
-
-        if ((m_route_dialog_x < 0) || (m_route_dialog_x > m_display_width))
-            m_route_dialog_x = 5;
-        if ((m_route_dialog_y < 0) || (m_route_dialog_y > m_display_height))
-            m_route_dialog_y = 5;
-        return true;
-    } else
-        return false;
+int TradNav_pi::Add_RTZ_db(wxString route_name) {
+  wxString sql = wxString::Format(
+      "INSERT INTO RTZ (route_name, created, submitted) "
+      "VALUES ('%s', current_timestamp, 0)",
+      route_name.c_str());
+  // wxMessageBox(sql);
+  dbQuery(sql);
+  return sqlite3_last_insert_rowid(m_database);
 }
 
-bool TradNav_pi::SaveConfig(void)
-{
-    wxFileConfig* pConf = (wxFileConfig*)m_pconfig;
+int TradNav_pi::GetRoute_Id(wxString route_name) {
+  wxString rte = route_name;
+  wxString sql1 = wxString::Format(
+      "SELECT route_id FROM RTZ WHERE route_name = '%s'", route_name.c_str());
 
-    if (pConf) {
-        pConf->SetPath(_T ( "/Settings/TradNav_pi" ));
-        pConf->Write(_T ( "ShowTradNavIcon" ), m_bTradNavShowIcon);
+  wxString sql2 = " union all select 'Nothing' where not exists ";
 
-        pConf->Write(_T ( "DialogPosX" ), m_route_dialog_x);
-        pConf->Write(_T ( "DialogPosY" ), m_route_dialog_y);
+  wxString sql3 = "(select route_id from RTZ where route_name = '" + rte + "')";
 
-        return true;
-    } else
-        return false;
+  wxString sql = sql1 + sql2 + sql3;
+  // wxMessageBox(sql);
+  return dbGetIntNotNullValue(sql);
 }
 
-void TradNav_pi::OnTradNavDialogClose()
-{
-    m_bShowTradNav = false;
-    SetToolbarItemState(m_leftclick_tool_id, m_bShowTradNav);
-    m_pDialog->Hide();
-    SaveConfig();
+wxString TradNav_pi::GetRTZDateStamp(wxString route_name) {
+  char **result;
+  int n_rows;
+  int n_columns;
+  char *measured;
+  wxString rte = route_name;
+  wxString sql = wxString::Format(
+      "SELECT created FROM RTZ WHERE route_name = '%s'", rte.c_str());
 
-    RequestRefresh(m_parent_window); // refresh main window
+  ret = sqlite3_get_table(m_database, sql.mb_str(), &result, &n_rows,
+                          &n_columns, &err_msg);
+  if (ret != SQLITE_OK) {
+    /* some error occurred */
+    wxLogMessage(_T("Spatialite SQL error: %s\n"), err_msg);
+    sqlite3_free(err_msg);
+    return "error";
+  }
+  for (int i = 1; i <= n_rows; i++) {
+    measured = result[(i * n_columns) + 0];
+  }
+
+  dbFreeResults(result);
+  wxString output = measured;
+  // wxMessageBox(measured);
+  return output;
 }
 
-void TradNav_pi::SetCursorLatLon(double lat, double lon)
-{
-    m_cursor_lat = lat;
-    m_cursor_lon = lon;
-
-    if (g_tdEventHandler) {
-        g_tdEventHandler->SetLatLon(lat, lon);
-        g_tdEventHandler->SetWindow(g_parent_window);
-    }
+void TradNav_pi::DeleteRTZ_Id(int id) {
+  wxString sql;
+  sql = wxString::Format("DELETE FROM RTZ WHERE route_id = %i", id);
+  // wxMessageBox(sql);
+  dbQuery(sql);
 }
 
-bool TradNav_pi::KeyboardEventHook(wxKeyEvent& event)
-{
-    if (!m_pDialog || !m_pDialog->IsShown()) {
-        return false;
-    }
-
-    bool bret = FALSE;
-
-    // wxMessageBox("P");
-
-    if (event.GetKeyCode() < 128) // ascii
-    {
-        int key_char = event.GetKeyCode();
-
-        if (event.ControlDown())
-            key_char -= 64;
-
-        switch (key_char) {
-        case WXK_CONTROL_G: // Ctrl R
-            if (event.ShiftDown()) { // Shift-Ctrl-R
-                if (event.GetEventType() == wxEVT_KEY_DOWN) {
-                    // wxMessageBox("R");
-                    // double lat = m_cursor_lat;
-                    m_pDialog->OnRangeCursor(m_cursor_lat, m_cursor_lon);
-                    // wxString mylat = wxString::Format("%f", lat);
-                    // wxMessageBox(mylat);
-                    return true;
-                }
-            }
-            break;
-
-        case WXK_CONTROL_B: // Ctrl P
-            if (event.ShiftDown()) { // Shift-Ctrl-P
-                if (event.GetEventType() == wxEVT_KEY_DOWN) {
-                    m_pDialog->OnCursor(m_cursor_lat, m_cursor_lon);
-                    return true;
-                }
-            }
-            break;
-
-        case WXK_CONTROL_H: // Ctrl P
-            if (event.ShiftDown()) { // Shift-Ctrl-P
-                if (event.GetEventType() == wxEVT_KEY_DOWN) {
-                    m_pDialog->OnHorizontal(m_cursor_lat, m_cursor_lon);
-                    return true;
-                }
-            }
-            break;
-
-        case WXK_ESCAPE: // Generic Break
-            if (event.GetEventType() == wxEVT_KEY_DOWN) {
-                m_pDialog->myTimer->Stop();
-                return false;
-                break;
-            }
-        }
-
-        return false;
-    }
+void TradNav_pi::DeleteRTZ_Name(wxString route_name) {
+  wxString sql;
+  sql = wxString::Format("DELETE FROM RTZ WHERE route_name = \'%s\'",
+                         route_name.c_str());
+  // wxMessageBox(sql);
+  bool res = dbQuery(sql);
+  if (res) {
+    wxString del = "\"" + route_name + "\" has been deleted";
+    // wxMessageBox(del, "Route Deleted");
+  } else
+    wxMessageBox("Error");
 }
 
-bool TradNav_pi::MouseEventHook(wxMouseEvent& event)
-{
+void TradNav_pi::DeleteEXT_Name(wxString route_name) {
+  wxString sql;
+  sql = wxString::Format("DELETE FROM EXT WHERE route_name = \'%s\'",
+                         route_name.c_str());
+  // wxMessageBox(sql);
+  bool res = dbQuery(sql);
+  if (res) {
+    wxString del = "\"" + route_name + "\" has been deleted";
+    // wxMessageBox(del, "Route Deleted");
+  } else
+    wxMessageBox("Error");
+}
 
-    if (!m_pDialog)
-        return false;
-    if (m_pDialog && m_pDialog->m_toggleBtn2->GetValue() == false)
-        return false;
-    m_drawing_canvas_index = -1;
+int TradNav_pi::Add_EXT_db(wxString extensions_file, wxString route_name,
+                               wxString rtz_date_stamp) {
+  wxString sql = wxString::Format(
+      "INSERT INTO EXT (extensions_file, route_name, rtz_date_stamp, created, "
+      "submitted) "
+      "VALUES ('%s', '%s', '%s',current_timestamp, 0)",
+      extensions_file.c_str(), route_name.c_str(), rtz_date_stamp.c_str());
+  // wxMessageBox(sql);
+  dbQuery(sql);
+  return sqlite3_last_insert_rowid(m_database);
+}
 
-    // m_parent_window = GetOCPNCanvasWindow();
-    // m_parent_window = PluginGetFocusCanvas();
+bool TradNav_pi::dbQuery(wxString sql) {
+  if (!b_dbUsable) return false;
+  ret = sqlite3_exec(m_database, sql.mb_str(), NULL, NULL, &err_msg);
+  if (ret != SQLITE_OK) {
+    wxMessageBox(err_msg);
+    // some error occurred
+    wxLogMessage(_T("Database error: %s in query: %s\n"), *err_msg,
+                 sql.c_str());
+    sqlite3_free(err_msg);
+    b_dbUsable = false;
+  }
+  return b_dbUsable;
+}
 
-    //m_parent_window->SetFocus();
-    //m_parent_window->CaptureMouse();
-    m_mouse_canvas_index = GetCanvasIndexUnderMouse();
-    g_tdEventHandler->SetCanvasIndex(m_mouse_canvas_index);
+int TradNav_pi::dbGetIntNotNullValue(wxString sql) {
+  char **result;
+  int n_rows;
+  int n_columns;
+  dbGetTable(sql, &result, n_rows, n_columns);
+  wxArrayString routes;
+  int ret = atoi(result[1]);
+  dbFreeResults(result);
+  if (n_rows == 1)
+    return ret;
+  else
+    return 0;
+}
 
-    if (GetCanvasCount() == 1 || m_drawing_canvas_index == -1
-        || m_mouse_canvas_index == m_drawing_canvas_index) {
-        g_cursor_x = event.GetX();
-        g_cursor_y = event.GetY();
-        m_cursorPoint.x = g_cursor_x;
-        m_cursorPoint.y = g_cursor_y;
-    }
+void TradNav_pi::dbGetTable(wxString sql, char ***results, int &n_rows,
+                                int &n_columns) {
+  ret = sqlite3_get_table(m_database, sql.mb_str(), results, &n_rows,
+                          &n_columns, &err_msg);
+  // wxMessageBox(err_msg);
+  if (ret != SQLITE_OK) {
+    wxLogMessage(_T("Database error: %s in query: %s\n"), *err_msg,
+                 sql.c_str());
+    sqlite3_free(err_msg);
+    b_dbUsable = false;
+  }
+}
 
-    if (GetCanvasCount() > 1 && m_drawing_canvas_index != -1
-        && m_mouse_canvas_index != m_drawing_canvas_index) {
-        return false;
-    }
+void TradNav_pi::dbFreeResults(char **results) {
+  sqlite3_free_table(results);
+}
 
-    // The last position
-    static int xpos = -1;
-    static int ypos = -1;
-    // currentSegment = NULL;
+wxString TradNav_pi::StandardPath() {
+  wxString stdPath(*GetpPrivateApplicationDataLocation());
+  wxString s = wxFileName::GetPathSeparator();
 
-    // Take into account scrolling
-    wxPoint pt = m_cursorPoint;
-    double mLat1, mLon1, mLat2, mLon2;
-    double m_lat1, m_lon1;
-    // m_pSelectedPath = m_pSelectedSegment;
-    // m_pSelectedPath->m_sTypeString = "DoodleSegment";
-    //g_tdEventHandler->SetPath();
+  stdPath += s + "plugins" + s + "finSAR";
+  if (!wxDirExists(stdPath)) wxMkdir(stdPath);
+  // stdPath = stdPath + s + "data";
+  // if (!wxDirExists(stdPath)) wxMkdir(stdPath);
 
-    g_tdEventHandler->SetCanvas(GetCanvasByIndex(m_mouse_canvas_index));
-    //
+  stdPath += s;
+  return stdPath;
+}
 
-    if (event.LeftDown()) {
-        /*
-        if (m_pSelectedPath)
-           wxMessageBox("found");
-        else
-            wxMessageBox("Not found");
-        */
-         //g_tdEventHandler->SetPath(m_pSelectedPath);
+wxString TradNav_pi::StandardPathRTZ() {
+  wxString stdPath(*GetpPrivateApplicationDataLocation());
+  wxString s = wxFileName::GetPathSeparator();
 
-        GetCanvasPixLL(&g_VP, &rp1, m_cursor_lat, m_cursor_lon);
-        
-        
-        newBPbegin = new bearingPoint(m_cursor_lat, m_cursor_lon);
-        m_bFinish = false;
-        
-    }
+  stdPath += s + "plugins" + s + "finSAR" + s + "RTZ";
+  if (!wxDirExists(stdPath)) wxMkdir(stdPath);
 
-    if (event.LeftUp()) {
-        /*
+  stdPath += s;
+  return stdPath;
+}
 
-      wxList mySegs = doc->GetDoodleSegments();
-        wxString sz = wxString::Format("%i", mySegs.size());
-        m_pDialog->m_Bearing->SetValue(sz);
-*/
-        GetCanvasLLPix(&g_VP, rp2, &m_lat1, &m_lon1);
-        newBPend = new bearingPoint(m_lat1, m_lon1);
+wxString TradNav_pi::StandardPathEXT() {
+  wxString stdPath(*GetpPrivateApplicationDataLocation());
+  wxString s = wxFileName::GetPathSeparator();
 
-        bearingLine* newBLine = new bearingLine(m_cursor_lat, m_cursor_lon, m_lat1 , m_lon1);
-        newBearing = new bearing;
-        newBearing->m_bearingLine = *newBLine;
-        newBearing->m_bearingBegin = newBPbegin;
-        newBearing->m_bearingEnd = newBPend;
-        g_pBearingList->push_back(newBearing);
-        //m_drawing_canvas_index = -1;
-        
-m_bFinish = true;
+  stdPath += s + "plugins" + s + "finSAR" + s + "EXT";
+  if (!wxDirExists(stdPath)) wxMkdir(stdPath);
 
-    }
+  stdPath += s;
+  return stdPath;
+}
 
-    if (xpos > -1 && ypos > -1 && event.Dragging()) {
-
-        newLine = new DoodleLine;
-        newLine->m_x1 = xpos;
-        newLine->m_y1 = ypos;
-        newLine->m_x2 = pt.x;
-        newLine->m_y2 = pt.y;
-        // currentSegment->GetLines().Append(newLine);
-        // m_pSelectedPath = currentSegment;
-        // rp1 = wxPoint(xpos, ypos);
-        rp2 = wxPoint(pt);
-        
-        
-    }
-
-    xpos = pt.x;
-    ypos = pt.y;
-    event.SetEventType(
-        wxEVT_MOVING); // stop dragging canvas on event flow through
-    //m_parent_window->ReleaseMouse();
-    // m_parent_window->Refresh();
-    // g_parent_window->Refresh();
-    tdRequestRefresh(m_mouse_canvas_index, true);
+bool TradNav_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) {
+  if (!m_pTradNavDialog || !m_pTradNavDialog->IsShown() ||
+      !m_pTradNavOverlayFactory)
     return false;
-} //
 
-bool TradNav_pi::RenderOverlay(wxMemoryDC* pmdc, PlugIn_ViewPort* pivp)
-{
-    g_bOpenGL = false;
-    m_VP = *pivp;
-    g_VP = *pivp;
-    m_chart_scale = pivp->chart_scale;
-    m_view_scale = pivp->view_scale_ppm;
+  if (m_pTradNavDialog) {
+    m_pTradNavDialog->SetViewPort(vp);
+    m_pTradNavDialog->MakeBoxPoints();
+  }
 
-    piDC ocpnmdc(*pmdc);
+  piDC pidc(dc);
 
-    RenderPathLegs(ocpnmdc);
-    return TRUE;
+  m_pTradNavOverlayFactory->RenderOverlay(pidc, *vp);
+  return true;
 }
 
-bool TradNav_pi::RenderOverlay(wxDC& dc, PlugIn_ViewPort* pivp)
-{
-    g_bOpenGL = false;
-    return RenderOverlays(dc, pivp);
+bool TradNav_pi::RenderGLOverlay(wxGLContext *pcontext,
+                                     PlugIn_ViewPort *vp) {
+  if (!m_pTradNavDialog || !m_pTradNavDialog->IsShown() ||
+      !m_pTradNavOverlayFactory)
+    return false;
+
+  if (m_pTradNavDialog) {
+    m_pTradNavDialog->SetViewPort(vp);
+    m_pTradNavDialog->MakeBoxPoints();
+  }
+
+  piDC piDC;
+  glEnable(GL_BLEND);
+  piDC.SetVP(vp);
+
+  m_pTradNavOverlayFactory->RenderOverlay(piDC, *vp);
+  return true;
 }
 
-bool TradNav_pi::RenderOverlays(wxDC& dc, PlugIn_ViewPort* pivp)
-{
-    m_VP = *pivp;
-    g_VP = *pivp;
-    m_chart_scale = pivp->chart_scale;
-    m_view_scale = pivp->view_scale_ppm;
+void TradNav_pi::SetPositionFix(PlugIn_Position_Fix &pfix) {
+  m_ship_lon = pfix.Lon;
+  m_ship_lat = pfix.Lat;
+  // std::cout<<"Ship--> Lat: "<<m_ship_lat<<" Lon: "<<m_ship_lon<<std::endl;
+  //}
+}
+bool TradNav_pi::LoadConfig(void) {
+  wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
 
-    g_pDC = new piDC(dc);
-    // LLBBox llbb;
-    // llbb.Set(pivp->lat_min, pivp->lon_min, pivp->lat_max, pivp->lon_max);
+  if (!pConf) return false;
 
-    RenderPathLegs(*g_pDC);
+  pConf->SetPath(_T( "/PlugIns/TradNav" ));
 
-    delete g_pDC;
-    return TRUE;
+  m_CopyFolderSelected = pConf->Read(_T( "TradNavFolder" ));
+
+  if (m_CopyFolderSelected == wxEmptyString) {
+    wxString g_SData_Locn = *GetpSharedDataLocation();
+    // Establish location of Tide and Current data
+    pTC_Dir = new wxString(_T("tcdata"));
+    pTC_Dir->Prepend(g_SData_Locn);
+
+    m_CopyFolderSelected = *pTC_Dir;
+  }
+
+  m_TradNav_dialog_sx = pConf->Read(_T( "TradNavDialogSizeX" ), 300L);
+  m_TradNav_dialog_sy = pConf->Read(_T( "TradNavDialogSizeY" ), 540L);
+  m_TradNav_dialog_x = pConf->Read(_T( "TradNavDialogPosX" ), 20L);
+  m_TradNav_dialog_y = pConf->Read(_T( "TradNavDialogPosY" ), 170L);
+
+  return true;
 }
 
-bool TradNav_pi::RenderOverlayMultiCanvas(
-    wxDC& dc, PlugIn_ViewPort* vp, int canvas_index)
-{
-    g_bOpenGL = false;
-    m_current_canvas_index = canvas_index;
-    bool bRet = RenderOverlays(dc, vp);
-    return bRet;
+bool TradNav_pi::SaveConfig(void) {
+  wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
+
+  if (!pConf) return false;
+
+  pConf->SetPath(_T( "/PlugIns/TradNav" ));
+
+  pConf->Write(_T( "TradNavFolder" ), m_CopyFolderSelected);
+
+  pConf->Write(_T( "TradNavDialogSizeX" ), m_TradNav_dialog_sx);
+  pConf->Write(_T( "TradNavDialogSizeY" ), m_TradNav_dialog_sy);
+  pConf->Write(_T( "TradNavDialogPosX" ), m_TradNav_dialog_x);
+  pConf->Write(_T( "TradNavDialogPosY" ), m_TradNav_dialog_y);
+
+  return true;
 }
 
-bool TradNav_pi::RenderGLOverlay(wxGLContext* pcontext, PlugIn_ViewPort* pivp)
-{
-    g_bOpenGL = true;
-    return RenderGLOverlays(pcontext, pivp);
+void TradNav_pi::SetColorScheme(PI_ColorScheme cs) {
+  DimeWindow(m_pTradNavDialog);
 }
 
-bool TradNav_pi::RenderGLOverlays(wxGLContext* pcontext, PlugIn_ViewPort* pivp)
-{
-    m_pcontext = pcontext;
-    m_VP = *pivp;
-    g_VP = *pivp;
-    m_chart_scale = pivp->chart_scale;
-    m_view_scale = pivp->view_scale_ppm;
+void TradNav_pi::OnContextMenuItemCallback(int id) {
+  if (!m_pTradNavDialog) return;
 
-    g_pDC = new piDC();
-    g_pDC->SetVP(pivp);
-
-    // LLBBox llbb;
-    //  llbb.Set(pivp->lat_min, pivp->lon_min, pivp->lat_max, pivp->lon_max);
-
-    //    DrawAllODPointsInBBox( *g_pDC, llbb );
-    RenderPathLegs(*g_pDC);
-
-    delete g_pDC;
-    return TRUE;
+  if (id == m_position_menu_id) {
+    m_cursor_lat = GetCursorLat();
+    m_cursor_lon = GetCursorLon();
+    m_pTradNavDialog->OnContextMenu(m_cursor_lat, m_cursor_lon);
+  }
 }
 
-bool TradNav_pi::RenderGLOverlayMultiCanvas(
-    wxGLContext* pcontext, PlugIn_ViewPort* vp, int canvas_index)
-{
-    g_bOpenGL = true;
-    m_current_canvas_index = canvas_index;
-    bool bRet = RenderGLOverlays(pcontext, vp);
-    return bRet;
-}
-
-void TradNav_pi::RenderPathLegs(piDC& dc)
-{
-    if (m_mouse_canvas_index != m_current_canvas_index) {
-        // wxMessageBox(" here ");
-        return;
-    } // wxMessageBox(" here ");
-    DoodleSegment* tns = new DoodleSegment();
-    wxPoint cursorpoint;
-    GetCanvasPixLL(&g_VP, &cursorpoint, m_cursor_lat, m_cursor_lon);
-    tns->DrawSegment(dc, &rp1, &rp2, m_VP, true);
-    
-    
-    double lat1, lon1, lat2, lon2, brg, dist;
-
-    GetCanvasLLPix(&g_VP, rp1, &lat1, &lon1);
-    GetCanvasLLPix(&g_VP, rp2, &lat2, &lon2);
-    DistanceBearingMercator_Plugin(lat2, lon2, lat1, lon1, &brg, &dist);
-
-    wxString sBrg = wxString::Format("%f", brg);
-
-    m_pDialog->m_Bearing->SetValue(sBrg);
-
-    if (m_pDialog)
-        RenderExtraPathLegInfo(dc, rp1, sBrg);
-
-
-    if (m_bFinish) { 
-      // let's iterate over the list in STL syntax
-        bearingList::iterator iter;
-        for (iter = g_pBearingList->begin(); iter != g_pBearingList->end();
-             ++iter) {
-            bearing* current = *iter;
-
-            //double dd = current->m_bearingBegin->m_x1;
-            //wxString dds = wxString::Format("%f", dd);
-            
-             current->RenderBearing(dc, current->m_bearingBegin->m_x1,
-                current->m_bearingBegin->m_y1, current->m_bearingEnd->m_x1,
-                current->m_bearingEnd->m_y1, m_VP, false, 4); 
-        }
-   }
-    delete tns;
-}
-
-void TradNav_pi::RenderExtraPathLegInfo(piDC& dc, wxPoint ref_point, wxString s)
-{
-    wxFont dFont(
-        12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);  
-  
-    dc.SetFont(dFont);
-
-    int w, h;
-    int xp, yp;
-    int hilite_offset = 3;
-#ifdef __WXMAC__
-    wxScreenDC sdc;
-    sdc.GetTextExtent(s, &w, &h, NULL, NULL, dFont);
-#else
-    dc.GetTextExtent(s, &w, &h);
-#endif
-
-    xp = ref_point.x - w;
-    yp = ref_point.y + h;
-    yp += hilite_offset;
-
-    wxColour tColour;
-    GetGlobalColor(wxS("YELO1"), &tColour);
-    AlphaBlending(dc, xp, yp, w, h, 0.0, tColour, 172);
-
-    GetGlobalColor(wxS("UBLCK"), &tColour);
-    dc.SetPen(wxPen(tColour));
-    dc.DrawText(s, xp, yp);
-}
-
-/* render a rectangle at a given color and transparency */
-void TradNav_pi::AlphaBlending(piDC& dc, int x, int y, int size_x, int size_y,
-    float radius, wxColour color, unsigned char transparency)
-{
-#if 1
-    wxDC* pdc = dc.GetDC();
-    if (pdc) {
-        //    Get wxImage of area of interest
-        wxBitmap obm(size_x, size_y);
-        wxMemoryDC mdc1;
-        mdc1.SelectObject(obm);
-        mdc1.Blit(0, 0, size_x, size_y, pdc, x, y);
-        mdc1.SelectObject(wxNullBitmap);
-        wxImage oim = obm.ConvertToImage();
-
-        //    Create destination image
-        wxBitmap olbm(size_x, size_y);
-        wxMemoryDC oldc(olbm);
-        if (!oldc.IsOk())
-             return;
-
-        oldc.SetBackground(*wxBLACK_BRUSH);
-        oldc.SetBrush(*wxWHITE_BRUSH);
-        oldc.Clear();
-
-        if (radius > 0.0)
-             oldc.DrawRoundedRectangle(0, 0, size_x, size_y, radius);
-
-        wxImage dest = olbm.ConvertToImage();
-        unsigned char* dest_data = (unsigned char*)malloc(
-            size_x * size_y * 3 * sizeof(unsigned char));
-        unsigned char* bg = oim.GetData();
-        unsigned char* box = dest.GetData();
-        unsigned char* d = dest_data;
-
-        //  Sometimes, on Windows, the destination image is corrupt...
-        if (NULL == box) {
-             free(d);
-             return;
-        }
-
-        float alpha = 1.0 - (float)transparency / 255.0;
-        int sb = size_x * size_y;
-        for (int i = 0; i < sb; i++) {
-             float a = alpha;
-             if (*box == 0 && radius > 0.0)
-                a = 1.0;
-             int r = ((*bg++) * a) + (1.0 - a) * color.Red();
-             *d++ = r;
-             box++;
-             int g = ((*bg++) * a) + (1.0 - a) * color.Green();
-             *d++ = g;
-             box++;
-             int b = ((*bg++) * a) + (1.0 - a) * color.Blue();
-             *d++ = b;
-             box++;
-        }
-
-        dest.SetData(dest_data);
-
-        //    Convert destination to bitmap and draw it
-        wxBitmap dbm(dest);
-        dc.DrawBitmap(dbm, x, y, false);
-
-        // on MSW, the dc Bounding box is not updated on DrawBitmap() method.
-        // Do it explicitely here for all platforms.
-        dc.CalcBoundingBox(x, y);
-        dc.CalcBoundingBox(x + size_x, y + size_y);
-    } else {
-#ifdef ocpnUSE_GL
-        /* opengl version */
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        if (radius > 1.0f) {
-             wxColour c(color.Red(), color.Green(), color.Blue(), transparency);
-             dc.SetBrush(wxBrush(c));
-             dc.DrawRoundedRectangle(x, y, size_x, size_y, radius);
-        } else {
-#ifndef USE_ANDROID_GLES2
-             glColor4ub(color.Red(), color.Green(), color.Blue(), transparency);
-             glBegin(GL_QUADS);
-             glVertex2i(x, y);
-             glVertex2i(x + size_x, y);
-             glVertex2i(x + size_x, y + size_y);
-             glVertex2i(x, y + size_y);
-             glEnd();
-#endif
-        }
-        glDisable(GL_BLEND);
-#else
-        wxLogMessage(_(
-            "Alpha blending not drawn as OpenGL not available in this build"));
-#endif
-    }
-#endif
-}
-
-
-void TradNav_pi::appendOSDirSlash(wxString* pString)
-{
-    wxChar sep = wxFileName::GetPathSeparator();
-
-    if (pString->Last() != sep)
-        pString->Append(sep);
-}
-
-void TradNav_pi::tdRequestRefresh(int canvas_index, bool bFullRefresh)
-{
-    if (!bFullRefresh) {
-        if (canvas_index != -1)
-            RequestRefresh(GetCanvasByIndex(canvas_index));
-    } else {
-        for (int i = 0; i < GetCanvasCount(); ++i) {
-            RequestRefresh(GetCanvasByIndex(i));
-        }
-    }
+void TradNav_pi::SetCursorLatLon(double lat, double lon) {
+  m_cursor_lat = lat;
+  m_cursor_lon = lon;
 }

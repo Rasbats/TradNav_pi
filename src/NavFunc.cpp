@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  TradNav Plugin
+ * Purpose:  DR Plugin
  * Author:   SaltyPaws/Mike Rossiter
  *
  ***************************************************************************
@@ -122,7 +122,7 @@ double fromDMStodouble(char *dms)
 
     sscanf(dms, "%d%[ ]%d%[ ']%lf%[ \"NSWEnswe]", &d, buf, &m, buf, &s, buf);
 
-    s = (double) (abs(d)) + ((double) m + s / 60.0) / 60.0;
+    s = (double) (std::abs(d)) + ((double) m + s / 60.0) / 60.0;
 
     if (d >= 0 && strpbrk(buf, "SWsw") == NULL)
       return s;
@@ -225,8 +225,8 @@ bool destRhumb(double lat1, double lon1, double brng, double dist, double* lat2,
   return true;
 }
  */
-//Loxotradnavome (Mercator) Destination the WGS ellipsoid
-//http://koti.mbnet.fi/jukaukor/loxotradnavom.html
+//Loxodrome (Mercator) Destination the WGS ellipsoid
+//http://koti.mbnet.fi/jukaukor/loxodrom.html
 /**
  * To find the lat/lon of a point on true course brng, distance dist from (lat1,lon1)
  * along a rhumbline (initial point cannot be a pole!):
@@ -237,7 +237,7 @@ bool destRhumb(double lat1, double lon1, double brng, double dist, double* lat2,
  * <-   double lat2, lat2 final point in decimal degrees
 
 */
-bool destLoxotradnavome(double lat1, double lon1, double brng, double dist, double* lat2, double* lon2) {
+bool destLoxodrome(double lat1, double lon1, double brng, double dist, double* lat2, double* lon2) {
 
 	bool dbg = false;
 	if (dbg) std::cout << "dL lat1 " << lat1 << " lon1: " << lon1 << "brng " << brng << " dist " << dist << std::endl;
@@ -279,12 +279,12 @@ bool destLoxotradnavome(double lat1, double lon1, double brng, double dist, doub
 			tolongdegree = lon1 + (deltaM*tan(course)) / 60;
 
 		// parallel navigation, distance is in nautical miles = equator minutes;
-		if (fabs(brng - 90)< 1e-10) {
+		if (std::abs(brng - 90)< 1e-10) {
 			tolongdegree = lon1 + (dist / cos(fromlat)) / 60;
 			tolatdegree = lat1 + 1e-8;
 		}
-		if (fabs(brng - 270) < 1e-10) {
-			tolongdegree = lon1 - (dist / cos(fromlat)) / 60;
+		if (std::abs(brng - 270) < 1e-10) {			
+			tolongdegree = lon1 - (dist / cos(fromlat)) / 60;	
 			tolatdegree = lat1 + 1e-8;
 		}
 	}
@@ -390,7 +390,7 @@ void PositionBearingDistanceMercator(double lat, double lon, double brg, double 
 	ll_gc_ll(lat, lon, brg, dist, dlat, dlon);
 }
 
-
+*/
 void ll_gc_ll(double lat, double lon, double brg, double dist, double *dlat, double *dlon)
 {
 
@@ -408,11 +408,11 @@ void ll_gc_ll(double lat, double lon, double brg, double dist, double *dlat, dou
 	double geod_a;
 	double es, onef, f, f4;
 
-	//      Setup the static parameters
-	phi1 = lat * DEGREE;           //  Initial Position
+	//      Setup the static parameters  
+	phi1 = lat * DEGREE;           //  Initial Position  
 	lam1 = lon * DEGREE;
-	al12 = brg * DEGREE;           //  Forward azimuth
-	geod_S = dist * 1852.0;        //  Distance
+	al12 = brg * DEGREE;           //  Forward azimuth 
+	geod_S = dist * 1852.0;        //  Distance        
 
 
 	//void geod_pre(struct georef_state *state)
@@ -422,7 +422,7 @@ void ll_gc_ll(double lat, double lon, double brg, double dist, double *dlat, dou
 		//      To avoid having to include <geodesic,h>
 		//
 		ellipse = 1;
-		f = 1.0 / WGSinvf;     //  WGS84 ellipsoid flattening parameter
+		f = 1.0 / WGSinvf;     //  WGS84 ellipsoid flattening parameter 
 		geod_a = WGS84_semimajor_axis_meters;
 
 		es = 2 * f - f * f;
@@ -432,7 +432,7 @@ void ll_gc_ll(double lat, double lon, double brg, double dist, double *dlat, dou
 		f4 = geod_f / 4;
 		//        f64 = geod_f*geod_f/64;
 
-		al12 = adjlon(al12);//  reduce to  +- 0-PI
+		al12 = adjlon(al12);//  reduce to  +- 0-PI 
 		signS = fabs(al12) > HALFPI ? 1 : 0;
 		th1 = ellipse ? atan(onef * tan(phi1)) : phi1;
 		costh1 = cos(th1);
@@ -543,17 +543,17 @@ void ll_gc_ll(double lat, double lon, double brg, double dist, double *dlat, dou
 	*dlon = lam2 / DEGREE;
 }
 
-*/
+
 
 double DistGreatCircle(double slat, double slon, double dlat, double dlon)
 {
 	//    double th1,costh1,sinth1,sina12,cosa12,M,N,c1,c2,D,P,s1;
 	//    int merid, signS;
 
-	//   Input/Output from geodesic functions
-	double al12;           // Forward azimuth
-	double al21;           // Back azimuth
-	double geod_S;         // Distance
+	//   Input/Output from geodesic functions   
+	double al12;           // Forward azimuth 
+	double al21;           // Back azimuth    
+	double geod_S;         // Distance        
 	double phi1, lam1, phi2, lam2;
 
 	int ellipse;

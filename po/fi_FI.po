@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: opencpn\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-10 12:43+0000\n"
-"PO-Revision-Date: 2019-06-04 15:07\n"
-"Last-Translator: Pavel Kalian (nohal)\n"
+"POT-Creation-Date: 2018-12-31 18:12+0000\n"
+"PO-Revision-Date: 2018-02-08 09:10-0500\n"
+"Last-Translator: nohal <pavel@kalian.cz>\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
 "MIME-Version: 1.0\n"
@@ -14,130 +14,466 @@ msgstr ""
 "X-Generator: crowdin.com\n"
 "X-Crowdin-Project: opencpn\n"
 "X-Crowdin-Language: fi\n"
-"X-Crowdin-File: /plugins/shipdriver_pi/po/ShipDriver_pi.pot\n"
-
-#: src/ShipDriver_pi.cpp:125 src/ShipDriver_pi.cpp:128 src/ShipDriver_pi.cpp:212
-#: src/ShipDrivergui_impl.h:80
-msgid "ShipDriver"
-msgstr "Laivanohjaus"
-
-#: src/ShipDriver_pi.cpp:134
-msgid "Select Vessel Start Position"
-msgstr "Valitse aluksen lähtökohta"
-
-#: src/ShipDriver_pi.cpp:218
-msgid "ShipDriver player"
-msgstr "Laivanohjauksen pelaaja"
-
-#: src/ShipDriver_pi.cpp:223
-msgid "Almost a simulator"
-msgstr "Lähes simulaattori"
-
-#: src/ShipDrivergui.h:105
+"X-Crowdin-File: /plugins/otcurrent_pi/po/otcurrent_pi.pot\n"
+#
+msgid "      < 0.5 knots"
+msgstr "      < 0,5 solmua"
+#
+#, c-format
+msgid "%.1f"
+msgstr ""
+#
+msgid "&About"
+msgstr ""
+#
+msgid "&Guide"
+msgstr ""
+#
+msgid ">= 0.5 and < 1.5"
+msgstr ">= 0.5 ja < 1.5"
+#
+msgid ">= 1.5 and < 2.5"
+msgstr ">= 1.5 ja < 2.5"
+#
+msgid ">= 2.5 and < 3.5"
+msgstr ">= 2.5 ja < 3.5"
+#
+msgid ">= 3.5 knots    "
+msgstr ">= 3.5 solmua    "
+#
+msgid "About Author"
+msgstr ""
+#
+msgid "About Weather Routing"
+msgstr ""
+#
+msgid "Bearing"
+msgstr ""
+#
+msgid "CTS"
+msgstr ""
+#
+msgid "Chart Route"
+msgstr ""
+#
+msgid "Close"
+msgstr ""
+#
+msgid "Course to steer"
+msgstr ""
+#
+msgid "DR"
+msgstr ""
+#
+msgid "DR Route has been calculated!"
+msgstr ""
+#
+msgid "DR Route has been charted!"
+msgstr ""
+#
+msgid "Daytime"
+msgstr ""
+#
+msgid "Delete"
+msgstr ""
+#
+msgid "Delete All Routes"
+msgstr ""
+#
+msgid "Delete all routes?\n"
+msgstr ""
+#
+msgid "Depart From"
+msgstr ""
+#
+#, fuzzy
+msgid "Departure Time"
+msgstr "Päivämäärä/aika"
+#
+msgid "Departure Time (Y/m/d h:m)"
+msgstr ""
+#
+msgid "Destination"
+msgstr ""
+#
+msgid "Display tidal direction"
+msgstr "Näytä vuoroveden suunta"
+#
+msgid "Display tidal rates (knots)"
+msgstr "Näytä vuorovesikertoimet (solmua)"
+#
+msgid "Distance"
+msgstr ""
+#
+msgid "Duration"
+msgstr ""
+#
+msgid "ETA"
+msgstr ""
+#
+msgid "ETA Route has been charted!"
+msgstr ""
+#
+msgid "ETA Routes have been calculated!"
+msgstr ""
+#
+msgid "End"
+msgstr ""
+#
+msgid "End Time"
+msgstr ""
+#
+msgid "EndTime"
+msgstr ""
+#
+msgid "Error in calculation. Please check input!"
+msgstr ""
+#
+msgid "EvTwilight"
+msgstr ""
+#
+msgid "Export DR Positions in GPX file as"
+msgstr ""
+#
+msgid "Export ETA Positions in GPX file as"
+msgstr ""
+#
+msgid "Failed to load file."
+msgstr ""
+#
+msgid "Failed to load file: "
+msgstr ""
+#
+msgid "Failed to save xml file: "
+msgstr ""
+#
+msgid "File contains duplicate position name, discarding\n"
+msgstr ""
+#
+msgid "Fill Colour"
+msgstr "Täytä väri"
+#
+msgid "From"
+msgstr ""
+#
+msgid "Grib plugin version not supported."
+msgstr ""
+#
+msgid "Import GPX Route file"
+msgstr ""
+#
+msgid "Invalid xml file"
+msgstr ""
+#
+msgid "LMT @ Location"
+msgstr ""
+#
+msgid "Latitude"
+msgstr ""
+#
+msgid "Leg"
+msgstr ""
+#
+msgid "Load"
+msgstr ""
+#
+msgid "Loading"
+msgstr ""
+#
+msgid "Local @ PC"
+msgstr ""
+#
+msgid "Longitude"
+msgstr ""
+#
+msgid "MoTwilight"
+msgstr ""
+#
+msgid "Name"
+msgstr ""
+#
+msgid "Nighttime"
+msgstr ""
+#
+msgid "No routes found. Please make a route"
+msgstr ""
+#
+msgid "No routes have been calculated"
+msgstr ""
+#
+msgid "OK"
+msgstr ""
+#
+msgid "Open the GRIB plugin and select a time!"
+msgstr ""
+#
+msgid "Plan Speed"
+msgstr ""
+#
+msgid "Please enter a name for the route!"
+msgstr ""
+#
+msgid "Please select a route"
+msgstr ""
+#
+msgid "Please select or generate a route"
+msgstr ""
+#
 msgid "Preferences"
-msgstr "Ominaisuudet"
-
-#: src/ShipDrivergui.cpp:50
-msgid "Tiller Control"
-msgstr "Peräsimen hallinta"
-
-#: src/ShipDrivergui.cpp:71
-msgid "|"
-msgstr "|"
-
-#: src/ShipDrivergui.cpp:74
-msgid "Midships"
-msgstr "Keskilaivat"
-
-#: src/ShipDrivergui.cpp:95
+msgstr "Asetukset"
+#
+msgid "Properties"
+msgstr ""
+#
+msgid "Route"
+msgstr ""
+#
+msgid "Route Calculation Type:"
+msgstr ""
+#
+msgid "Route Properties"
+msgstr ""
+#
+msgid "Route Table"
+msgstr ""
+#
+msgid "Route name already exists, please edit the name"
+msgstr ""
+#
+msgid ""
+"Route start date is not compatible with this Grib \n"
+" Or Grib is not available for part of the route"
+msgstr ""
+#
+msgid "RouteCalculation Type:"
+msgstr ""
+#
+msgid "RouteName"
+msgstr ""
+#
+msgid "Routes"
+msgstr ""
+#
+msgid "Speed"
+msgstr ""
+#
 msgid "Start"
-msgstr "Alku"
-
-#: src/ShipDrivergui.cpp:102
-msgid "Stop"
-msgstr "Pysäytä"
-
-#: src/ShipDrivergui.cpp:120
-msgid "  Heading:  "
-msgstr "  Suunta:  "
-
-#: src/ShipDrivergui.cpp:126
-msgid "000"
-msgstr "000"
-
-#: src/ShipDrivergui.cpp:132
-msgid "             Speed: "
-msgstr "             Nopeus: "
-
-#: src/ShipDrivergui.cpp:138 src/ShipDrivergui.cpp:165
-msgid "0"
-msgstr "0"
-
-#: src/ShipDrivergui.cpp:144
-msgid "        Kts"
-msgstr "        Kts"
-
-#: src/ShipDrivergui.cpp:175
-msgid "Speed Control"
-msgstr "Nopeudensäätö"
-
-#: src/ShipDrivergui.cpp:179
-msgid "100"
-msgstr "100"
-
-#: src/ShipDrivergui.cpp:199
-msgid "Stby"
-msgstr "Valm"
-
-#: src/ShipDrivergui.cpp:202
-msgid "Hand Steering"
-msgstr "Käsiohjaus"
-
-#: src/ShipDrivergui.cpp:207
-msgid "Auto"
-msgstr "Auto"
-
-#: src/ShipDrivergui.cpp:210
-msgid "Autopilot Control"
-msgstr "Autopilotti hallinta"
-
-#: src/ShipDrivergui.cpp:225
-msgid "-1"
-msgstr "-1"
-
-#: src/ShipDrivergui.cpp:231
-msgid "-10"
-msgstr "-10"
-
-#: src/ShipDrivergui.cpp:237
-msgid "+10"
-msgstr "+ 10"
-
-#: src/ShipDrivergui.cpp:243
-msgid "+1"
-msgstr "+1"
-
-#: src/ShipDrivergui.cpp:295
-msgid "AIS"
-msgstr "AIS"
-
-#: src/ShipDrivergui.cpp:302
-msgid "Transmit"
-msgstr "Välitys"
-
-#: src/ShipDrivergui.cpp:305
-msgid "Save to file"
-msgstr "Tallenna tiedostoon"
-
-#: src/ShipDrivergui.cpp:312
-msgid "MMSI"
-msgstr "MMSI"
-
-#: src/ShipDrivergui_impl.cpp:85
-msgid "Please right-click and choose vessel start position"
-msgstr "Valitse kakkospainikkeella aluksen lähtökohta"
-
-#: src/ShipDrivergui_impl.cpp:90
-msgid "MMSI must be a number, please change in Preferences"
-msgstr "MMSI on oltava luku, muuta ominaisuuksissa"
-
+msgstr ""
+#
+#, fuzzy
+msgid "Start Time"
+msgstr "Päivämäärä/aika"
+#
+#, fuzzy
+msgid "StartTime"
+msgstr "Päivämäärä/aika"
+#
+msgid "Sunrise"
+msgstr ""
+#
+msgid "Sunset"
+msgstr ""
+#
+msgid ""
+"The oTidalRoute plugin for opencpn is intended to calculate routes based on "
+"computerized tidal data.\n"
+"\n"
+"License: GPLv3+\n"
+"\n"
+"Source Code:\n"
+"https://github.com/rasbats/oTidalRoute_pi\n"
+"\n"
+"Author:\n"
+"Mike Rossiter\n"
+"\n"
+"Many thanks to all translators and testers."
+msgstr ""
+#
+msgid "Tidal Current Arrow Colour"
+msgstr "Vuorovesivirran nuolenväri"
+#
+#, fuzzy
+msgid "Tidal Rate"
+msgstr "Vuorovesi Datakansio"
+#
+msgid "Tidal Routes"
+msgstr ""
+#
+msgid "Tidal Set"
+msgstr ""
+#
+msgid "TidalRoutingInformation.html"
+msgstr ""
+#
+#, fuzzy
+msgid "Time"
+msgstr "Päivämäärä/aika"
+#
+msgid "Time Enroute"
+msgstr ""
+#
+msgid "Times shown as"
+msgstr ""
+#
+msgid "To Waypoint"
+msgstr ""
+#
+msgid "Total Distance"
+msgstr ""
+#
+msgid "Towards"
+msgstr ""
+#
+msgid "Type"
+msgstr ""
+#
+msgid "UTC"
+msgstr ""
+#
+msgid ""
+"Unable to calculate ETA over two legs at this speed. \n"
+"\n"
+" Aborting"
+msgstr ""
+#
+msgid ""
+"Unable to compute speed over ground with this tide and boat speed, \n"
+"\n"
+" Aborting"
+msgstr ""
+#
+msgid "Unrecognized xml node"
+msgstr ""
+#
+#, c-format
+msgid "Use versions %d.%d to %d.%d"
+msgstr ""
+#
+msgid "Waypoint Properties"
+msgstr ""
+#
+msgid "Waypoints"
+msgstr ""
+#
+msgid "Weather Routing"
+msgstr ""
+#
+msgid "error in input range validation"
+msgstr ""
+#
+msgid "oTidalRoute"
+msgstr ""
+#
+msgid "oTidalRoute Plugin Version"
+msgstr ""
+#
+msgid "otidalroute"
+msgstr ""
+#
+#, fuzzy
+msgid "otidalroute PlugIn for OpenCPN"
+msgstr "OpenCPN:n vuorovesivirtaus lisäosa"
+#
+msgid ""
+"otidalroute PlugIn for OpenCPN\n"
+"Calculates EP positions/Courses using Grib tidal current data.\n"
+"\n"
+"\t\t\t   "
+msgstr ""
+#
+msgid "rte Invalid xml file"
+msgstr ""
+#
+#
+#~ msgid "About Tidal Arrows"
+#~ msgstr "Tietoja vuorovesi nuolista"
+#
+#
+#~ msgid "Currents"
+#~ msgstr "Virtaukset"
+#
+#
+#~ msgid "Day"
+#~ msgstr "Päivä"
+#
+#
+#~ msgid "Help"
+#~ msgstr "Ohje"
+#
+#
+#~ msgid "High Resolution Display"
+#~ msgstr "Korkean resoluution näyttö"
+#
+#
+#~ msgid "Next"
+#~ msgstr "Seuraava"
+#
+#
+#~ msgid "Now"
+#~ msgstr "Nyt"
+#
+#
+#~ msgid "Previous"
+#~ msgstr "Edellinen"
+#
+#
+#~ msgid "Select a folder"
+#~ msgstr "Valitse kansio"
+#
+#
+#~ msgid "Step (Minutes)"
+#~ msgstr "Väli (minuuttia)"
+#
+#
+#~ msgid ""
+#~ "Tidal Current\n"
+#~ "------------------------------------------------------\n"
+#~ "\n"
+#~ "\n"
+#~ "\n"
+#~ "\n"
+#~ "\n"
+#~ "Use this data with caution.\n"
+#~ "Use in conjunction with Tidal Current Atlases and Tidal Diamonds\n"
+#~ "\n"
+#~ "------------------------------------------------------\n"
+#~ "\n"
+#~ "Note: 1 Rates shown are for a position corresponding to the centre\n"
+#~ "of the base of the arrow. Tidal rate is shown as knots.\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Vuorovesi virtaus\n"
+#~ "--------------------------------------------------------------\n"
+#~ "\n"
+#~ "\n"
+#~ "\n"
+#~ "\n"
+#~ "\n"
+#~ "Käytä tätä tietoa varauksella. \n"
+#~ "Käytä yhdessä vuorovesivitauskartastojen ja vuorovesi ruutujen kanssa\n"
+#~ "\n"
+#~ "--------------------------------------------------------------\n"
+#~ "\n"
+#~ "Huomaa: 1 Lukemat on näytetty sijainnin suhteessa perusnuolen keskustaan.\n"
+#~ "Vuorovesilukema näytetään solmuina.\n"
+#~ "\n"
+#
+#
+#~ msgid "Using Tide/Current data from:  "
+#~ msgstr "Käytetään vuorovesi/virta tietoja lähteestä:  "
+#
+#
+#~ msgid "otcurrent"
+#~ msgstr "vuorovesivirtaus"
+#
+#
+#~ msgid ""
+#~ "otcurrent PlugIn for OpenCPN\n"
+#~ "Provides an overlay of Tidal Current (Stream) Arrows.\n"
+#~ "\n"
+#~ "\t\t\t   "
+#~ msgstr ""
+#~ "OpenCPN vuorovesilisäosa\n"
+#~ "Tuottaa vuorovesivirran suuntanuolien päällyskerroksen.\n"
+#~ "\n"
+#~ "\t\t\t   "
