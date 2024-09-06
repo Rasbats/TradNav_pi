@@ -36,7 +36,7 @@ void initialize_images(void)
 	fn.SetPath(tmp_path);
 	fn.AppendDir(_T("data"));
 
-	fn.SetFullName(_T("TradNav_pi.svg"));
+	fn.SetFullName(_T("tradnav_pi.svg"));
 	_svg_TradNav = fn.GetFullPath();
 	fn.SetFullName(_T("TradNav_pi_toggled.svg"));
 	_svg_TradNav_toggled = fn.GetFullPath();
