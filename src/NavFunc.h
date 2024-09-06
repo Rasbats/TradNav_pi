@@ -1,8 +1,8 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  DR Plugin
- * Author:   SaltyPaws
+ * Purpose:  TradNav Plugin
+ * Author:   Mike Rossiter
  *
  ***************************************************************************
  *   Copyright (C) 2012 by Brazil BrokeTail                                *
