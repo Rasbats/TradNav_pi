@@ -150,9 +150,18 @@ bool TradNavOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
 
   if (m_dlg.m_bDrawWptDisk) DrawWptDisk(&vp);
 
-  if (m_dlg.m_bBearingLine) {
+  if (m_dlg.m_bIdentify) {
+    DrawIdentifyLineInViewPort(&vp);
+  }
+
+  if (m_dlg.m_bEBL) {
     DrawEBLLineInViewPort(&vp);
   }
+
+  if (m_dlg.m_bRunningFix) {
+    DrawRFInViewPort(&vp);
+  }
+
   // DrawBearingLineInViewPort(&vp);
   DrawRangeCircleInViewPort(&vp);
   return true;
@@ -227,19 +236,19 @@ void TradNavOverlayFactory::DrawBearingTargets(PlugIn_ViewPort *BBox) {
     wxImage image = DrawLabel(brg, 1);
     wxCoord w = image.GetWidth();
     wxCoord h = image.GetHeight();
-    
+
     wxPoint il;
-    il.x = ie.x + h * cos(brg*PI/180 + PI/2);
-    il.y = ie.y + h * sin(brg*PI/180 + PI/2);
+    il.x = ie.x + h * cos(brg * PI / 180 + PI / 2);
+    il.y = ie.y + h * sin(brg * PI / 180 + PI / 2);
 
     wxBitmap bm(image);
-    m_dc->DrawBitmap(bm, il.x - h/4, il.y - h/4, true);
+    m_dc->DrawBitmap(bm, il.x - h / 4, il.y - h / 4, true);
 
     wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
     m_dc->SetFont(font);
     m_dc->SetTextForeground("WHITE");
     m_dc->SetPen(pen2);
-    m_dc->DrawText(brg_text, il.x - h/4 + 10, il.y - h/4 + 12);
+    m_dc->DrawText(brg_text, il.x - h / 4 + 10, il.y - h / 4 + 12);
   }
 }
 
@@ -961,7 +970,7 @@ wxImage TradNavOverlayFactory::DrawDirectionLabels(double value, int x, int y,
   return image;
 }
 
-void TradNavOverlayFactory::DrawEBLLineInViewPort(PlugIn_ViewPort *BBox) {
+void TradNavOverlayFactory::DrawIdentifyLineInViewPort(PlugIn_ViewPort *BBox) {
   wxColour colour = wxColour("RED");
   wxBrush brush(colour);
   c_GLcolour = colour;  // for filling GL arrows
@@ -1002,7 +1011,71 @@ void TradNavOverlayFactory::DrawEBLLineInViewPort(PlugIn_ViewPort *BBox) {
 
     wxString bearing_angle = m_dlg.brgs;
 
-    wxImage image = DrawLabelEBL(m_dlg.ebl_brg, 1);
+
+
+
+    wxImage image = DrawLabelEBL(360, 1);
+    wxCoord w = image.GetWidth();
+    wxCoord h = image.GetHeight();
+
+    wxBitmap bm(image);
+    m_dc->DrawBitmap(bm, sbl.x + 10, sbl.y, true);
+
+    wxColour colour2 = wxColour("WHITE");
+    ;
+    wxPen pen2(colour2, 2);
+
+    wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+    m_dc->SetFont(font);
+    m_dc->SetTextForeground("WHITE");
+    m_dc->SetPen(pen2);
+    m_dc->DrawText(bearing_angle, sbl.x + 15, sbl.y + 6);
+  }
+}
+
+
+void TradNavOverlayFactory::DrawEBLLineInViewPort(PlugIn_ViewPort *BBox) {
+  wxColour colour = wxColour("RED");
+  wxBrush brush(colour);
+  c_GLcolour = colour;  // for filling GL arrows
+  if (m_dc) {
+    wxPen pen(colour, 2);
+
+    m_dc->SetPen(pen);
+    brush.SetStyle(wxBRUSHSTYLE_SOLID);
+    m_dc->SetBrush(brush);
+  }
+
+  wxPoint sbl;
+  GetCanvasPixLL(BBox, &sbl, m_dlg.m_ShipLat2, m_dlg.m_ShipLon2);
+
+  //
+
+  double brg, dist;
+
+  DistanceBearingMercator_Plugin(m_dlg.m_ShipLat2, m_dlg.m_ShipLon2,
+                                 m_dlg.ebl_lat, m_dlg.ebl_lon, &brg, &dist);
+
+  double dlat, dlon;
+  ll_gc_ll(m_dlg.m_ShipLat2, m_dlg.m_ShipLon2, m_dlg.ebl_brg, dist, &dlat,
+           &dlon);
+
+  wxPoint s;
+  GetCanvasPixLL(BBox, &s, dlat, dlon);
+
+  if (m_dc) {
+    m_dc->DrawLine(s.x, s.y, sbl.x, sbl.y, false);
+
+    double angle = atan2(s.y - sbl.y, s.x - sbl.x);
+    // Add the two lines for the arrowhead
+    m_dc->DrawLine(s.x, s.y, s.x - 20 * cos(angle - PI / 7),
+                   s.y - 20 * sin(angle - PI / 7));
+    m_dc->DrawLine(s.x, s.y, s.x - 20 * cos(angle + PI / 7),
+                   s.y - 20 * sin(angle + PI / 7));
+
+    wxString bearing_angle = m_dlg.brgs;
+
+    wxImage image = DrawLabelEBL(360, 1);
     wxCoord w = image.GetWidth();
     wxCoord h = image.GetHeight();
 
@@ -1055,7 +1128,7 @@ void TradNavOverlayFactory::DrawBearingLineInViewPort(PlugIn_ViewPort *BBox) {
 
     wxString bearing_angle = wxString::Format("%3.0f", m_dlg.ebl_brg);
 
-    wxImage image = DrawLabelEBL(m_dlg.ebl_brg, 1);
+    wxImage image = DrawLabelEBL(360, 1);
     wxCoord w = image.GetWidth();
     wxCoord h = image.GetHeight();
 
@@ -1152,4 +1225,99 @@ wxImage &TradNavOverlayFactory::DrawLabelEBL(double value, int precision) {
     }
 
   return image;
+}
+
+void TradNavOverlayFactory::DrawRFInViewPort(PlugIn_ViewPort *BBox) {
+  wxColour colour = wxColour("BLACK");
+  wxBrush brush(colour);
+  c_GLcolour = colour;  // for filling GL arrows
+  if (m_dc) {
+    wxPen pen(colour, 2);
+
+    m_dc->SetPen(pen);
+    brush.SetStyle(wxBRUSHSTYLE_SOLID);
+    m_dc->SetBrush(brush);
+  }
+
+  
+  double dlat, dlon;  // position at end of the run for the running fix
+
+  double rev_brg = m_dlg.rf_bearing + 180.0;
+  if (rev_brg > 360) rev_brg -= 360;
+  
+
+  ll_gc_ll(m_dlg.ebl_lat, m_dlg.ebl_lon, m_dlg.rf_course, m_dlg.rf_distance, &dlat,
+           &dlon);
+
+  wxPoint ep;
+  GetCanvasPixLL(BBox, &ep, dlat, dlon);
+
+  double rflat, rflon; // end of transferred bearing line
+
+  ll_gc_ll(dlat, dlon, rev_brg, m_dlg.ebl_range,
+           &rflat, &rflon);
+
+
+  wxPoint s;
+  GetCanvasPixLL(BBox, &s, rflat,rflon);
+
+  if (m_dc) {
+    m_dc->DrawLine(s.x, s.y, ep.x, ep.y, false);
+
+    double angle = atan2(s.y - ep.y, s.x - ep.x);
+    // Add the two lines for the arrowhead
+    m_dc->DrawLine(s.x, s.y, s.x - 20 * cos(angle - PI / 7),
+                   s.y - 20 * sin(angle - PI / 7));
+
+    m_dc->DrawLine(s.x, s.y, s.x - 20 * cos(angle + PI / 7),
+                   s.y - 20 * sin(angle + PI / 7));
+
+    double rf = m_dlg.rf_bearing;
+
+    wxPoint ss(s.x - cos(angle) * 20, s.y - sin(angle) * 20); // for the double arrow
+
+    m_dc->DrawLine(ss.x, ss.y, ss.x - 20 * cos(angle - PI / 7),
+                   ss.y - 20 * sin(angle - PI / 7));
+
+    m_dc->DrawLine(ss.x, ss.y, ss.x - 20 * cos(angle + PI / 7),
+                   ss.y - 20 * sin(angle + PI / 7));
+
+
+    wxString bearing_angle = wxString::Format("%3.0f", m_dlg.rf_bearing);
+
+    if (m_dlg.rf_bearing < 10) {
+      std::string s = bearing_angle;
+      string r = s.substr(2, 1);
+      unsigned int number_of_zeros = 3 - r.length();  // add 2 zero
+
+      r.insert(0, number_of_zeros, '0');
+      bearing_angle = r;
+
+    } else if (m_dlg.rf_bearing > 9 && m_dlg.rf_bearing < 100) {
+      std::string s = bearing_angle;
+      string r = s.substr(1, 2);
+      unsigned int number_of_zeros = 3 - r.length();  // add 1 zero
+
+      r.insert(0, number_of_zeros, '0');
+      bearing_angle = r;
+    }
+    bearing_angle += "  ";
+
+    wxImage image = DrawLabelEBL(360, 1);
+    wxCoord w = image.GetWidth();
+    wxCoord h = image.GetHeight();
+
+    wxBitmap bm(image);
+    m_dc->DrawBitmap(bm, ep.x + 10, ep.y, true);
+
+    wxColour colour2 = wxColour("WHITE");
+    ;
+    wxPen pen2(colour2, 2);
+
+    wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+    m_dc->SetFont(font);
+    m_dc->SetTextForeground("WHITE");
+    m_dc->SetPen(pen2);
+    m_dc->DrawText(bearing_angle, ep.x + 30, ep.y + 6);
+  }
 }

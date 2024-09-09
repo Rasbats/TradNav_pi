@@ -102,7 +102,9 @@ private:
   void DrawDirectionTargets(PlugIn_ViewPort *BBox);
   wxImage DrawDirectionArrows(int x, int y, double scale);
   wxImage DrawDirectionLabels(double value, int x, int y, double scale, bool reverse);
+  void DrawIdentifyLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawEBLLineInViewPort(PlugIn_ViewPort *BBox);
+  void DrawRFInViewPort(PlugIn_ViewPort *BBox);
   void DrawBearingLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawRangeCircleInViewPort(PlugIn_ViewPort *BBox);
   wxImage &DrawLabelEBL(double value, int precision);

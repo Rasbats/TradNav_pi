@@ -112,7 +112,8 @@ TradNavUIDialog::TradNavUIDialog(wxWindow* parent, TradNav_pi* ppi)
     : TradNavUIDialogBase(parent) {
   pParent = parent;
   pPlugIn = ppi;
-  m_bBearingLine = false;
+  m_bIdentify = false;
+  m_bEBL = false;
 
   wxFileConfig* pConf = GetOCPNConfigObject();
 
@@ -218,7 +219,7 @@ int TradNavUIDialog::GetRandomNumber(int range_min, int range_max) {
 }
 
 void TradNavUIDialog::SaveIndexRangeDirection(wxString route_name,
-                                                  wxString date_stamp) {
+                                              wxString date_stamp) {
   // Create Main level XML container
   xml_document xmlDoc;
 
@@ -612,7 +613,7 @@ void TradNavUIDialog::MakeBoxPoints() {
   int pixleftright = m_vp->pix_height / 4;
 
   double elat, elon;
-  ll_gc_ll(dlat2, boxlon, 0, 2*halfbox, &elat, &elon);
+  ll_gc_ll(dlat2, boxlon, 0, 2 * halfbox, &elat, &elon);
 
   wxPoint r1;
   GetCanvasPixLL(m_vp, &r1, elat, elon);
@@ -766,8 +767,6 @@ void TradNavUIDialog::WriteEXT(wxString route_name) {
   xmlDoc.save_file(file_path.mb_str());
 }
 
-
-
 void TradNavUIDialog::DeleteEXTFile(wxString route_name) {
   wxString rt = route_name;
   wxString file_folder = pPlugIn->StandardPathEXT();
@@ -806,10 +805,9 @@ void TradNavUIDialog::OnBearingLine(wxCommandEvent& event) {
 
   double dlat, dlon;
 
-  ll_gc_ll(centreLat, centreLon, rev_brg, ebl_range, &dlat,
-                                         &dlon);
+  ll_gc_ll(centreLat, centreLon, rev_brg, ebl_range, &dlat, &dlon);
 
-  BearingPoint start,end;
+  BearingPoint start, end;
   start.lat = dlat;
   start.lon = dlon;
   end.lat = centreLat;
@@ -819,8 +817,8 @@ void TradNavUIDialog::OnBearingLine(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::SetBearing(wxString bearing_name,BearingPoint start, BearingPoint end) {
-
+void TradNavUIDialog::SetBearing(wxString bearing_name, BearingPoint start,
+                                 BearingPoint end) {
   b_target = new BearingTarget;
   b_target->route_name = bearing_name;
   // wxMessageBox(b_target->route_name);
@@ -832,26 +830,28 @@ void TradNavUIDialog::SetBearing(wxString bearing_name,BearingPoint start, Beari
 
   double brg, dist;
 
-  DistanceBearingMercator_Plugin(end.lat, end.lon, start.lat, start.lon, &brg, &dist);
+  DistanceBearingMercator_Plugin(end.lat, end.lon, start.lat, start.lon, &brg,
+                                 &dist);
   b_target->bearing = brg;
   double label_distance = dist / 4;
 
-  //double llat, llon;
-  //PositionBearingDistanceMercator_Plugin(start.lat, start.lon, brg, label_distance,
-  //                                       &llat, &llon);
-  
+  // double llat, llon;
+  // PositionBearingDistanceMercator_Plugin(start.lat, start.lon, brg,
+  // label_distance,
+  //                                        &llat, &llon);
+
   b_target->label_lat = end.lat;
   b_target->label_lon = end.lon;
 
   b_vector.push_back(*b_target);
 
-  wxString date_stamp = "Now"; // pPlugIn->GetRTZDateStamp(mySelectedRoute);
+  wxString date_stamp = "Now";  // pPlugIn->GetRTZDateStamp(mySelectedRoute);
   wxString extensions_file = mySelectedRoute + ".xml";
   SaveBearingInfo(mySelectedRoute, date_stamp);
 }
 
 void TradNavUIDialog::SaveBearingInfo(wxString route_name,
-                                              wxString date_stamp) {
+                                      wxString date_stamp) {
   // Create Main level XML container
   xml_document xmlDoc;
 
@@ -961,19 +961,16 @@ void TradNavUIDialog::OnBearingLineDelete(wxCommandEvent& event) {
 }
 
 void TradNavUIDialog::OnIndex(wxCommandEvent& event) {
-  
   ebl_lat = pPlugIn->GetCursorLat();
   ebl_lon = pPlugIn->GetCursorLon();
 
-  //int ci = this->m_choiceObjectBearing->GetSelection();
- // wxString cs = this->m_choiceObjectBearing->GetString(ci);
- // cs.ToDouble(&ebl_brg);
+  // int ci = this->m_choiceObjectBearing->GetSelection();
+  // wxString cs = this->m_choiceObjectBearing->GetString(ci);
+  // cs.ToDouble(&ebl_brg);
 
-  //GetIndex(active_waypoint, prev_waypoint);
+  // GetIndex(active_waypoint, prev_waypoint);
   RequestRefresh(pParent);
 }
-
-
 
 void TradNavUIDialog::GetIndex(Position* A, Position* B) {
   double value = 0.0;
@@ -1089,7 +1086,6 @@ void TradNavUIDialog::OnIndexDelete(wxCommandEvent& event) {
 }
 
 void TradNavUIDialog::OnRangeCircle(wxCommandEvent& event) {
-  
   ebl_lat = centreLat;
   ebl_lon = centreLon;
 
@@ -1100,7 +1096,6 @@ void TradNavUIDialog::OnRangeCircle(wxCommandEvent& event) {
 }
 
 void TradNavUIDialog::setRangeCircle(RangeTarget* range_centre) {
-  
   r_target = new RangeTarget;
   r_target->route_name = "";
   // wxMessageBox(r_target->route_name);
@@ -1109,17 +1104,12 @@ void TradNavUIDialog::setRangeCircle(RangeTarget* range_centre) {
   r_target->beginLat = range_centre->beginLat;
   r_target->beginLon = range_centre->beginLon;
 
- 
+  double rs = this->m_range->GetValue();
 
- wxString rs = this->m_range->GetValue();
-  double dist;
- rs.ToDouble(&dist);
-
- r_target->distance = dist;
-
+  r_target->distance = rs;
 
   r_target->label_lat = range_centre->beginLat;
- r_target->label_lon = range_centre->beginLon;
+  r_target->label_lon = range_centre->beginLon;
 
   r_vector.push_back(*r_target);
 
@@ -1128,8 +1118,6 @@ void TradNavUIDialog::setRangeCircle(RangeTarget* range_centre) {
   SaveRangeInfo(mySelectedRoute, date_stamp);
 
   RequestRefresh(pParent);
-
-  
 }
 
 void TradNavUIDialog::SaveRangeInfo(wxString route_name, wxString date_stamp) {
@@ -1239,8 +1227,6 @@ void TradNavUIDialog::OnRangeCircleDelete(wxCommandEvent& event) {
 
   RequestRefresh(pParent);
 }
-
-
 
 void TradNavUIDialog::OnRange(wxCommandEvent& event) {
   if (mySelectedLeg == 999) {
@@ -1644,7 +1630,6 @@ void TradNavUIDialog::ReadEXT(wxString file_name) {
 }
 
 void TradNavUIDialog::OnContextMenu(double m_lat, double m_lon) {
-  
   c_lat = m_lat;
   c_lon = m_lon;
 
@@ -1656,8 +1641,7 @@ void TradNavUIDialog::OnContextMenu(double m_lat, double m_lon) {
 
   ebl_range = dist1;
 
-  //wxMessageBox(wxString::Format("%f",ebl_range))
-
+  // wxMessageBox(wxString::Format("%f",ebl_range))
 }
 
 int TradNavUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
@@ -1786,7 +1770,7 @@ int TradNavUIDialog::DeleteChartedRoute() {
 }
 
 double TradNavUIDialog::FindDistanceFromLeg(Position* A, Position* B,
-                                                Position* C) {
+                                            Position* C) {
   double value = 0.0;
   A->lat.ToDouble(&value);
   double lat1 = value;
@@ -1824,8 +1808,36 @@ double TradNavUIDialog::FindDistanceFromLeg(Position* A, Position* B,
   return distance;
 }
 
-void TradNavUIDialog::OnButtonEBL(wxCommandEvent& event) {
-  m_bBearingLine = true;
+void TradNavUIDialog::RequestVariation() {
+  Json::Value value;
+
+  wxDateTime time = time.FromUTC();
+
+  value["Day"] = time.GetDay();
+  value["Month"] = time.GetMonth();
+  value["Year"] = time.GetYear();
+  value["Hour"] = time.GetHour();
+  value["Minute"] = time.GetMinute();
+  value["Second"] = time.GetSecond();
+
+  wxString out;
+
+  Json::StreamWriterBuilder builder;
+  std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+  std::ostringstream outStream;
+  writer->write(value, &outStream);
+  std::string str = outStream.str();
+
+  SendPluginMessage(wxString("WMM_VARIATION_BOAT"), str);
+
+  // Lock();
+  // m_bNeedsGrib = false;
+  // Unlock();
+}
+
+void TradNavUIDialog::OnButtonIdentify(wxCommandEvent& event) {
+  m_bIdentify = true;
+  m_bEBL = false;
 
   wxString first_num, second_num, third_num;
 
@@ -1845,34 +1857,57 @@ void TradNavUIDialog::OnButtonEBL(wxCommandEvent& event) {
   rev_brg = ebl_brg + 180;
   if (rev_brg > 360) rev_brg -= 360;
 
-  
-
   this->m_timer1.Start(200);
 }
 
-void TradNavUIDialog::OnButtonEBL_off(wxCommandEvent& event) {
-  m_bBearingLine = false;
+void TradNavUIDialog::OnButtonIdentify_off(wxCommandEvent& event) {
+  m_bIdentify = false;
+  m_bEBL = false;
 
   this->m_timer1.Stop();
 
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::OnTimer(wxTimerEvent& event) { MakeEBLEvent(); }
+void TradNavUIDialog::OnButtonEBL(wxCommandEvent& event) {
+  m_bEBL = true;
+  m_bIdentify = false;
 
-void TradNavUIDialog::MakeEBLEvent() {
-  if (m_bBearingLine) {
-    this->m_Lat1->SetValue(wxString::Format("%.6f", centreLat));
-    this->m_Lon1->SetValue(wxString::Format("%.6f", centreLon));
+  this->m_timer1.Start(200);
+}
 
-    //cursor_lat = pPlugIn->GetCursorLat();
-    //cursor_lon = pPlugIn->GetCursorLon();
+void TradNavUIDialog::OnButtonEBL_off(wxCommandEvent& event) {
+  m_bEBL = false;
+  m_bIdentify = false;
+
+  this->m_EBLbearing->SetValue(wxEmptyString);
+  this->m_Lat1->SetValue(wxEmptyString);
+  this->m_Lon1->SetValue(wxEmptyString);
+
+  this->m_timer1.Stop();
+
+  RequestRefresh(pParent);
+}
+
+void TradNavUIDialog::OnTimer(wxTimerEvent& event) {
+  if (m_bIdentify) {
+    MakeIdentifyEvent();
+  } else if (m_bEBL) {
+    MakeEBLEvent();
+  }
+}
+
+void TradNavUIDialog::MakeIdentifyEvent() {
+  if (m_bIdentify) {
+
+    // cursor_lat = pPlugIn->GetCursorLat();
+    // cursor_lon = pPlugIn->GetCursorLon();
     m_ShipLat2 = pPlugIn->m_ship_lat;
     m_ShipLon2 = pPlugIn->m_ship_lon;
 
-   // double dist;
-   // DistanceBearingMercator_Plugin( centreLat, centreLon,ebl_lat, ebl_lon,
-   //                                &ebl_brg, &dist);
+    // double dist;
+    // DistanceBearingMercator_Plugin( centreLat, centreLon,ebl_lat, ebl_lon,
+    //                                &ebl_brg, &dist);
 
     brgs = wxString::Format("%3.0f", ebl_brg);
     if (ebl_brg < 10.0) {
@@ -1891,7 +1926,49 @@ void TradNavUIDialog::MakeEBLEvent() {
       brgs = r;
     }
 
-    
+  } else {
+    ebl_lat = 0;
+    ebl_lon = 0;
+
+    m_ShipLat2 = 0;
+    m_ShipLat2 = 0;
+  }
+
+  RequestRefresh(pParent);
+}
+
+void TradNavUIDialog::MakeEBLEvent() {
+  if (m_bEBL) {
+    this->m_Lat1->SetValue(wxString::Format("%.6f", pPlugIn->GetCursorLat()));
+    this->m_Lon1->SetValue(wxString::Format("%.6f", pPlugIn->GetCursorLon()));
+
+    ebl_lat = pPlugIn->GetCursorLat();
+    ebl_lon = pPlugIn->GetCursorLon();
+    m_ShipLat2 = pPlugIn->m_ship_lat;
+    m_ShipLon2 = pPlugIn->m_ship_lon;
+
+    double dist;
+    DistanceBearingMercator_Plugin(ebl_lat, ebl_lon, m_ShipLat2, m_ShipLon2,
+                                   &ebl_brg, &dist);
+
+    brgs = wxString::Format("%3.0f", ebl_brg);
+    if (ebl_brg < 10.0) {
+      std::string s = brgs;
+      string r = s.substr(2, 1);
+      unsigned int number_of_zeros = 3 - r.length();  // add 1 zero
+
+      r.insert(0, number_of_zeros, '0');
+      brgs = r;
+    } else if (ebl_brg >= 10 && ebl_brg < 100) {
+      std::string s = brgs;
+      string r = s.substr(1, 2);
+      unsigned int number_of_zeros = 3 - r.length();  // add 1 zero
+
+      r.insert(0, number_of_zeros, '0');
+      brgs = r;
+    }
+
+    this->m_EBLbearing->SetValue(brgs);
 
   } else {
     ebl_lat = 0;
@@ -1902,4 +1979,54 @@ void TradNavUIDialog::MakeEBLEvent() {
   }
 
   RequestRefresh(pParent);
+}
+
+void TradNavUIDialog::OnPlotRunningFix(wxCommandEvent& event) {
+
+  m_bRunningFix = true;
+
+  ebl_lat = centreLat;
+  ebl_lon = centreLon;
+
+  int fi = this->m_choiceRFfirstNum->GetSelection();
+  wxString fs = this->m_choiceRFfirstNum->GetString(fi);
+
+  int si = this->m_choiceRFsecondNum->GetSelection();
+  wxString ss = this->m_choiceRFsecondNum->GetString(si);
+
+  int ti = this->m_choiceRFthirdNum->GetSelection();
+  wxString ts = this->m_choiceRFthirdNum->GetString(ti);
+
+  wxString cs = fs + ss + ts;
+
+  cs.ToDouble(&rf_bearing);
+
+  fi = this->m_choiceCourseFirstNum->GetSelection();
+  fs = this->m_choiceCourseFirstNum->GetString(fi);
+
+  si = this->m_choiceCourseSecondNum->GetSelection();
+  ss = this->m_choiceCourseSecondNum->GetString(si);
+
+  ti = this->m_choiceCourseThirdNum->GetSelection();
+  ts = this->m_choiceCourseThirdNum->GetString(ti);
+
+  cs = fs + ss + ts;
+
+  cs.ToDouble(&rf_course);
+
+  rf_speed = this->m_speed->GetValue();
+
+  fi = this->m_choiceMinutesFirstNum->GetSelection();
+  fs = this->m_choiceMinutesFirstNum->GetString(fi);
+
+  si = this->m_choiceMinutesSecondNum->GetSelection();
+  ss = this->m_choiceMinutesSecondNum->GetString(si);
+
+  cs = fs + ss;
+  cs.ToDouble(&rf_minutes);
+
+  rf_distance = (rf_minutes/60) * rf_speed;
+
+  //wxMessageBox(wxString::Format("%f", rf_distance));
+
 }

@@ -39,7 +39,7 @@ set(DISPLAY_NAME TradNav)    # Dialogs, installer artifacts, ...
 set(PLUGIN_API_NAME TradNav) # As of GetCommonName() in plugin API
 set(PKG_SUMMARY "Finland SAR")
 set(PKG_DESCRIPTION [=[
-For Finland SAR.
+Traditional Navigation.
 ]=])
 
 set(PKG_AUTHOR "Mike Rossiter")

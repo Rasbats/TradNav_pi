@@ -42,6 +42,8 @@
 #include "pidc.h"
 #include <wx/tokenzr.h>
 #include <wx/datetime.h>
+#include "json/reader.h"
+#include "json/writer.h"
 
 #define DATABASE_NAME "finSAR.db"
 
@@ -56,8 +58,7 @@ class TradNavUIDialog;
 //    The PlugIn Class Definition
 //----------------------------------------------------------------------------------------------------------
 
-#define TradNav_TOOL_POSITION \
-  -1  // Request default positioning of toolbar tool
+#define TradNav_TOOL_POSITION -1  // Request default positioning of toolbar tool
 
 class TradNav_pi : public opencpn_plugin_118 {
 public:
@@ -100,9 +101,10 @@ public:
 
   void OnContextMenuItemCallback(int id);
   void SetCursorLatLon(double lat, double lon);
+  void SetPluginMessage(wxString &message_id, wxString &message_body);
 
-  // bool MouseEventHook(wxMouseEvent &event);
-  void OnTradNavDialogClose();
+      // bool MouseEventHook(wxMouseEvent &event);
+      void OnTradNavDialogClose();
 
   wxString GetFolderSelected() { return m_CopyFolderSelected; }
   int GetIntervalSelected() { return m_CopyIntervalSelected; }
@@ -149,6 +151,7 @@ public:
   int GetRoute_Id(wxString route_name);
   wxString GetRTZDateStamp(wxString route_name);
   double m_ship_lon, m_ship_lat;
+  double g_dVar;
 
 private:
   double m_cursor_lat, m_cursor_lon;

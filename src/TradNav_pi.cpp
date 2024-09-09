@@ -106,7 +106,6 @@ int TradNav_pi::Init(void) {
   m_TradNav_dialog_sy = 400;
   m_pTradNavDialog = NULL;
   m_pTradNavOverlayFactory = NULL;
-  m_bTradNavShowIcon = true;
 
   ::wxDisplaySize(&m_display_width, &m_display_height);
 
@@ -619,4 +618,31 @@ void TradNav_pi::OnContextMenuItemCallback(int id) {
 void TradNav_pi::SetCursorLatLon(double lat, double lon) {
   m_cursor_lat = lat;
   m_cursor_lon = lon;
+}
+
+void TradNav_pi::SetPluginMessage(wxString &message_id,
+                                  wxString &message_body) {
+
+  if (message_id == _T("WMM_VARIATION_BOAT")) {
+    Json::CharReaderBuilder builder;
+    Json::CharReader *reader = builder.newCharReader();
+
+    Json::Value value;
+    string errors;
+
+    bool parsingSuccessful = reader->parse(
+        message_body.c_str(), message_body.c_str() + message_body.size(),
+        &value, &errors);
+    delete reader;
+
+    if (!parsingSuccessful) {
+      wxLogMessage("WMM_VARIATION error");
+      return;
+    }
+
+    // get the DECL value from the JSON message
+    double decl = value["Decl"].asDouble();  
+
+    g_dVar = decl;
+  }
 }

@@ -322,7 +322,8 @@ public:
   double centreLon;
   double ppm;
   void MakeBoxPoints();
-  bool m_bBearingLine;
+  bool m_bEBL;
+  bool m_bIdentify;
   bool m_bIndexLabel;
   bool m_bMoveUpDownLeftRight;
   double m_ShipLat1, m_ShipLon1;
@@ -347,6 +348,14 @@ public:
   double ebl_brg;
   double rev_brg;
   double ebl_range;
+
+  double rf_course;  // rf == running fix
+  double rf_speed;
+  double rf_bearing;
+  double rf_minutes;
+  double rf_distance;
+
+  bool m_bRunningFix;
 
 
 protected:
@@ -426,9 +435,14 @@ private:
   void GetDirection(Position* A, Position* B);
   void OnDirectionDelete(wxCommandEvent& event);
   void OnTimer(wxTimerEvent& event);
+  void OnButtonIdentify(wxCommandEvent& event);
+  void OnButtonIdentify_off(wxCommandEvent& event);
+  void MakeIdentifyEvent();
   void MakeEBLEvent();
   void OnButtonEBL(wxCommandEvent& event);
   void OnButtonEBL_off(wxCommandEvent& event);
+  void RequestVariation();
+  void OnPlotRunningFix(wxCommandEvent& event);
 };
 
 class GetRouteDialog : public wxDialog {
