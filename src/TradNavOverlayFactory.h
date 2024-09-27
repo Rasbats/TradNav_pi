@@ -34,6 +34,7 @@
 #include <wx/font.h>
 #include <wx/dcbuffer.h>
 #include <wx/dc.h>
+#include <cmath>
 
 class piDC;
 
@@ -48,9 +49,8 @@ static wxPoint DirectionArrowArray[NUM_DIRECTION_ARROW_POINTS] = {
 #define NUM_REVERSE_ARROW_POINTS 9
 static wxPoint ReverseArrowArray[NUM_REVERSE_ARROW_POINTS] = {
     wxPoint(100, -100), wxPoint(100, -90),  wxPoint(45, -90),
-    wxPoint(45, -75),  wxPoint(0, -100),    wxPoint(45, -125),
-    wxPoint(45, -110), wxPoint(100, -110), wxPoint(100, -100)};
-
+    wxPoint(45, -75),   wxPoint(0, -100),   wxPoint(45, -125),
+    wxPoint(45, -110),  wxPoint(100, -110), wxPoint(100, -100)};
 
 //----------------------------------------------------------------------------------------------------------
 //    TradNav Overlay Factory Specification
@@ -82,7 +82,6 @@ public:
   piDC *m_dc;
 
 private:
-
   wxPoint polyPoints[7];
   wxPoint rectPoints[7];
 
@@ -101,13 +100,15 @@ private:
 
   void DrawDirectionTargets(PlugIn_ViewPort *BBox);
   wxImage DrawDirectionArrows(int x, int y, double scale);
-  wxImage DrawDirectionLabels(double value, int x, int y, double scale, bool reverse);
+  wxImage DrawDirectionLabels(double value, int x, int y, double scale,
+                              bool reverse);
   void DrawIdentifyLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawEBLLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawRFInViewPort(PlugIn_ViewPort *BBox);
   void DrawBearingLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawRangeCircleInViewPort(PlugIn_ViewPort *BBox);
   wxImage &DrawLabelEBL(double value, int precision);
+  wxString FormatBearing(double dbearing);
 
   wxPoint p[12];
   wxPoint r[12];

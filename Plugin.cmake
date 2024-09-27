@@ -47,6 +47,8 @@ set(PKG_IS_OPEN_SOURCE "yes")
 set(PKG_HOMEPAGE https://github.com/Rasbats/TradNav_pi)
 set(PKG_INFO_URL https://opencpn.org/OpenCPN/plugins/TradNav.html)
 
+add_definitions(-DocpnUSE_GL)
+
 SET(SRC
         src/TradNav_pi.h
         src/TradNav_pi.cpp
@@ -72,6 +74,15 @@ endmacro ()
 
 macro(add_plugin_libraries)
   # Add libraries required by this plugin
+
+  if(WIN32)
+    add_subdirectory("${CMAKE_SOURCE_DIR}/opencpn-libs/WindowsHeaders")
+    target_link_libraries(${PACKAGE_NAME} windows::headers)
+
+    # add_subdirectory("${CMAKE_SOURCE_DIR}/opencpn-libs/glu")
+    # target_link_libraries(${PACKAGE_NAME} ocpn::glu_static)
+  endif()
+
   add_subdirectory("${CMAKE_SOURCE_DIR}/opencpn-libs/pugixml")
   target_link_libraries(${PACKAGE_NAME} ocpn::pugixml)
 

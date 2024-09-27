@@ -114,6 +114,7 @@ TradNavUIDialog::TradNavUIDialog(wxWindow* parent, TradNav_pi* ppi)
   pPlugIn = ppi;
   m_bIdentify = false;
   m_bEBL = false;
+  m_bRunningFix = false;
 
   wxFileConfig* pConf = GetOCPNConfigObject();
 
@@ -1096,6 +1097,26 @@ void TradNavUIDialog::OnRangeCircle(wxCommandEvent& event) {
 }
 
 void TradNavUIDialog::setRangeCircle(RangeTarget* range_centre) {
+  m_bRunningFix = false;
+
+  wxString first_num, second_num, third_num;
+
+  int fi = this->m_choiceFirstNum->GetSelection();
+  wxString fs = this->m_choiceFirstNum->GetString(fi);
+
+  int si = this->m_choiceSecondNum->GetSelection();
+  wxString ss = this->m_choiceSecondNum->GetString(si);
+
+  int ti = this->m_choiceThirdNum->GetSelection();
+  wxString ts = this->m_choiceThirdNum->GetString(ti);
+
+  wxString cs = fs + ss + ts;
+
+  cs.ToDouble(&ebl_brg);
+
+  m_ShipLat2 = pPlugIn->m_ship_lat;
+  m_ShipLon2 = pPlugIn->m_ship_lon;
+
   r_target = new RangeTarget;
   r_target->route_name = "";
   // wxMessageBox(r_target->route_name);
@@ -1838,6 +1859,7 @@ void TradNavUIDialog::RequestVariation() {
 void TradNavUIDialog::OnButtonIdentify(wxCommandEvent& event) {
   m_bIdentify = true;
   m_bEBL = false;
+  m_bRunningFix = false;
 
   wxString first_num, second_num, third_num;
 
@@ -1863,6 +1885,7 @@ void TradNavUIDialog::OnButtonIdentify(wxCommandEvent& event) {
 void TradNavUIDialog::OnButtonIdentify_off(wxCommandEvent& event) {
   m_bIdentify = false;
   m_bEBL = false;
+  m_bRunningFix = false;
 
   this->m_timer1.Stop();
 
@@ -1872,6 +1895,7 @@ void TradNavUIDialog::OnButtonIdentify_off(wxCommandEvent& event) {
 void TradNavUIDialog::OnButtonEBL(wxCommandEvent& event) {
   m_bEBL = true;
   m_bIdentify = false;
+  m_bRunningFix = false;
 
   this->m_timer1.Start(200);
 }
@@ -1879,6 +1903,7 @@ void TradNavUIDialog::OnButtonEBL(wxCommandEvent& event) {
 void TradNavUIDialog::OnButtonEBL_off(wxCommandEvent& event) {
   m_bEBL = false;
   m_bIdentify = false;
+  m_bRunningFix = false;
 
   this->m_EBLbearing->SetValue(wxEmptyString);
   this->m_Lat1->SetValue(wxEmptyString);
@@ -1899,7 +1924,6 @@ void TradNavUIDialog::OnTimer(wxTimerEvent& event) {
 
 void TradNavUIDialog::MakeIdentifyEvent() {
   if (m_bIdentify) {
-
     // cursor_lat = pPlugIn->GetCursorLat();
     // cursor_lon = pPlugIn->GetCursorLon();
     m_ShipLat2 = pPlugIn->m_ship_lat;
@@ -1944,14 +1968,15 @@ void TradNavUIDialog::MakeEBLEvent() {
 
     ebl_lat = pPlugIn->GetCursorLat();
     ebl_lon = pPlugIn->GetCursorLon();
-    m_ShipLat2 = pPlugIn->m_ship_lat;
-    m_ShipLon2 = pPlugIn->m_ship_lon;
+    m_ShipLat2 = centreLat;
+    m_ShipLon2 = centreLon;
 
     double dist;
     DistanceBearingMercator_Plugin(ebl_lat, ebl_lon, m_ShipLat2, m_ShipLon2,
                                    &ebl_brg, &dist);
 
     brgs = wxString::Format("%3.0f", ebl_brg);
+
     if (ebl_brg < 10.0) {
       std::string s = brgs;
       string r = s.substr(2, 1);
@@ -1969,20 +1994,12 @@ void TradNavUIDialog::MakeEBLEvent() {
     }
 
     this->m_EBLbearing->SetValue(brgs);
-
-  } else {
-    ebl_lat = 0;
-    ebl_lon = 0;
-
-    m_ShipLat2 = 0;
-    m_ShipLat2 = 0;
   }
 
   RequestRefresh(pParent);
 }
 
 void TradNavUIDialog::OnPlotRunningFix(wxCommandEvent& event) {
-
   m_bRunningFix = true;
 
   ebl_lat = centreLat;
@@ -2025,8 +2042,7 @@ void TradNavUIDialog::OnPlotRunningFix(wxCommandEvent& event) {
   cs = fs + ss;
   cs.ToDouble(&rf_minutes);
 
-  rf_distance = (rf_minutes/60) * rf_speed;
+  rf_distance = (rf_minutes / 60) * rf_speed;
 
-  //wxMessageBox(wxString::Format("%f", rf_distance));
-
+  // wxMessageBox(wxString::Format("%f", rf_distance));
 }
