@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  TradNav Plugin Friends
+ * Purpose:  tradnav Plugin Friends
  * Author:   David Register, Mike Rossiter
  *
  ***************************************************************************
@@ -24,8 +24,8 @@
  ***************************************************************************
  */
 
-#ifndef __TradNavUIDIALOG_H__
-#define __TradNavUIDIALOG_H__
+#ifndef __tradnavUIDIALOG_H__
+#define __tradnavUIDIALOG_H__
 
 #include "wx/wxprec.h"
 
@@ -36,7 +36,7 @@
 #include <wx/fileconf.h>
 #include <wx/glcanvas.h>
 
-#include "TradNavUIDialogBase.h"
+#include "tradnavUIDialogBase.h"
 #include "NavFunc.h"
 
 #include <wx/progdlg.h>
@@ -130,12 +130,12 @@ static const long long lNaN = 0xfff8000000000000;
        (Y) * (Y))  // much faster than hypot#define distance(X, Y) sqrt((X)*(X)
                    // + (Y)*(Y)) // much faster than hypot
 
-class TradNavOverlayFactory;
+class tradnavOverlayFactory;
 class PlugIn_ViewPort;
 class PositionRecordSet;
 
 class wxFileConfig;
-class TradNav_pi;
+class tradnav_pi;
 class wxGraphicsContext;
 class routeprop;
 class BearingTarget;
@@ -252,12 +252,12 @@ public:
 
 #define pi 3.14159265358979323846
 
-class TradNavUIDialog : public TradNavUIDialogBase {
+class tradnavUIDialog : public tradnavUIDialogBase {
 public:
-  TradNavUIDialog(wxWindow* parent, TradNav_pi* ppi);
-  ~TradNavUIDialog();
+  tradnavUIDialog(wxWindow* parent, tradnav_pi* ppi);
+  ~tradnavUIDialog();
 
-  TradNav_pi* pPlugIn;
+  tradnav_pi* pPlugIn;
 
   // void SetCursorLatLon(double lat, double lon);
 
@@ -443,6 +443,7 @@ private:
   void OnButtonEBL_off(wxCommandEvent& event);
   void RequestVariation();
   void OnPlotRunningFix(wxCommandEvent& event);
+  void OnChoice(wxCommandEvent& event);
 };
 
 class GetRouteDialog : public wxDialog {

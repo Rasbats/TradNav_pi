@@ -9,12 +9,12 @@
 
 extern void initialize_images(void);
 
-extern wxBitmap *_img_TradNav;
-extern wxBitmap *_img_TradNav_pi;
+extern wxBitmap *_img_tradnav;
+extern wxBitmap *_img_tradnav_pi;
 
 #ifdef ocpnUSE_SVG
-extern wxString _svg_TradNav;
-extern wxString _svg_TradNav_toggled;
+extern wxString _svg_tradnav;
+extern wxString _svg_tradnav_toggled;
 #endif
 
 #endif /* ICONS_H */

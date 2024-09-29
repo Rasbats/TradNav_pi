@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  TradNav Object
+ * Purpose:  tradnav Object
  * Author:   David Register, Mike Rossiter
  *
  ***************************************************************************
@@ -35,9 +35,9 @@
 #include <wx/graphics.h>
 #include <wx/progdlg.h>
 
-#include "TradNavUIDialog.h"
-#include "TradNavUIDialogBase.h"
-#include "TradNavOverlayFactory.h"
+#include "tradnavUIDialog.h"
+#include "tradnavUIDialogBase.h"
+#include "tradnavOverlayFactory.h"
 #include <vector>
 
 #ifdef __WXOSX__
@@ -55,7 +55,7 @@
 
 using namespace std;
 
-class TradNavUIDialog;
+class tradnavUIDialog;
 class PlugIn_ViewPort;
 class piDC;
 class IndexTarget;
@@ -93,9 +93,9 @@ static GLboolean QueryExtension(const char *extName) {
 }
 
 //----------------------------------------------------------------------------------------------------------
-//    TradNav Overlay Factory Implementation
+//    tradnav Overlay Factory Implementation
 //----------------------------------------------------------------------------------------------------------
-TradNavOverlayFactory::TradNavOverlayFactory(TradNavUIDialog &dlg)
+tradnavOverlayFactory::tradnavOverlayFactory(tradnavUIDialog &dlg)
     : m_dlg(dlg) {
   m_dFont_map = new wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,
                            wxFONTWEIGHT_NORMAL);
@@ -106,16 +106,16 @@ TradNavOverlayFactory::TradNavOverlayFactory(TradNavUIDialog &dlg)
   m_dtUseNew = m_dlg.m_dtNow;
 }
 
-TradNavOverlayFactory::~TradNavOverlayFactory() {}
+tradnavOverlayFactory::~tradnavOverlayFactory() {}
 
-void TradNavOverlayFactory::Reset() {}
+void tradnavOverlayFactory::Reset() {}
 
-void TradNavOverlayFactory::setData(double lat1, double lon1) {
+void tradnavOverlayFactory::setData(double lat1, double lon1) {
   myLat1 = lat1;
   myLon1 = lon1;
 }
 
-bool TradNavOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
+bool tradnavOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
   m_dc = &dc;
 
   if (!dc.GetDC()) {
@@ -167,7 +167,7 @@ bool TradNavOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
   return true;
 }
 
-void TradNavOverlayFactory::DrawWptDisk(PlugIn_ViewPort *BBox) {
+void tradnavOverlayFactory::DrawWptDisk(PlugIn_ViewPort *BBox) {
   wxColour colour = wxColour("YELLOW");
   wxBrush brush(colour);
   c_GLcolour = colour;  // for filling GL arrows
@@ -198,7 +198,7 @@ void TradNavOverlayFactory::DrawWptDisk(PlugIn_ViewPort *BBox) {
 //
 // For drawing bearing lop
 //
-void TradNavOverlayFactory::DrawBearingTargets(PlugIn_ViewPort *BBox) {
+void tradnavOverlayFactory::DrawBearingTargets(PlugIn_ViewPort *BBox) {
   wxColour colour1 = wxColour("BLACK");
   wxColour colour2 = wxColour("WHITE");
 
@@ -254,7 +254,7 @@ void TradNavOverlayFactory::DrawBearingTargets(PlugIn_ViewPort *BBox) {
   }
 }
 
-void TradNavOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
+void tradnavOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
   wxColour colour1 = wxColour("BLACK");
   wxColour colour2 = wxColour("WHITE");
 
@@ -311,7 +311,7 @@ void TradNavOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
   }
 }
 
-void TradNavOverlayFactory::DrawRangeCircleInViewPort(PlugIn_ViewPort *BBox) {
+void tradnavOverlayFactory::DrawRangeCircleInViewPort(PlugIn_ViewPort *BBox) {
   wxColour colour1 = wxColour("BLACK");
   wxColour colour2 = wxColour("WHITE");
 
@@ -447,7 +447,7 @@ void TradNavOverlayFactory::DrawRangeCircleInViewPort(PlugIn_ViewPort *BBox) {
   }
 }
 
-void TradNavOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
+void tradnavOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
   wxColour colour1 = wxColour("BLACK");
   wxColour colour2 = wxColour("WHITE");
 
@@ -504,7 +504,7 @@ void TradNavOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
   }
 }
 
-void TradNavOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
+void tradnavOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
   if (BBox->chart_scale > 1000000) {
     return;
   }
@@ -565,7 +565,7 @@ void TradNavOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
   }
 }
 
-void TradNavOverlayFactory::DrawAllLinesInViewPort(PlugIn_ViewPort *BBox) {
+void tradnavOverlayFactory::DrawAllLinesInViewPort(PlugIn_ViewPort *BBox) {
   wxColour colour = wxColour("RED");
   wxBrush brush(colour);
   c_GLcolour = colour;  // for filling GL arrows
@@ -624,7 +624,7 @@ void TradNavOverlayFactory::DrawAllLinesInViewPort(PlugIn_ViewPort *BBox) {
   }
 }
 
-wxImage &TradNavOverlayFactory::DrawLabel(double value, int precision) {
+wxImage &tradnavOverlayFactory::DrawLabel(double value, int precision) {
   wxString labels;
 
   int p = precision;
@@ -704,7 +704,7 @@ wxImage &TradNavOverlayFactory::DrawLabel(double value, int precision) {
   return image;
 }
 
-wxImage TradNavOverlayFactory::DrawDirectionArrows(int x, int y, double scale) {
+wxImage tradnavOverlayFactory::DrawDirectionArrows(int x, int y, double scale) {
   wxMemoryDC mdc(wxNullBitmap);
 
   wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
@@ -888,7 +888,7 @@ wxImage TradNavOverlayFactory::DrawDirectionArrows(int x, int y, double scale) {
   return image;
 }
 
-wxImage TradNavOverlayFactory::DrawDirectionLabels(double value, int x, int y,
+wxImage tradnavOverlayFactory::DrawDirectionLabels(double value, int x, int y,
                                                    double scale, bool reverse) {
   wxMemoryDC mdc(wxNullBitmap);
 
@@ -1035,7 +1035,7 @@ wxImage TradNavOverlayFactory::DrawDirectionLabels(double value, int x, int y,
   return image;
 }
 
-void TradNavOverlayFactory::DrawIdentifyLineInViewPort(PlugIn_ViewPort *BBox) {
+void tradnavOverlayFactory::DrawIdentifyLineInViewPort(PlugIn_ViewPort *BBox) {
   wxColour colour = wxColour("RED");
   wxBrush brush(colour);
   c_GLcolour = colour;  // for filling GL arrows
@@ -1099,7 +1099,7 @@ void TradNavOverlayFactory::DrawIdentifyLineInViewPort(PlugIn_ViewPort *BBox) {
   }
 }
 
-void TradNavOverlayFactory::DrawEBLLineInViewPort(PlugIn_ViewPort *BBox) {
+void tradnavOverlayFactory::DrawEBLLineInViewPort(PlugIn_ViewPort *BBox) {
   wxColour colour = wxColour("RED");
   wxBrush brush(colour);
   c_GLcolour = colour;  // for filling GL arrows
@@ -1163,7 +1163,7 @@ void TradNavOverlayFactory::DrawEBLLineInViewPort(PlugIn_ViewPort *BBox) {
   }
 }
 
-void TradNavOverlayFactory::DrawBearingLineInViewPort(PlugIn_ViewPort *BBox) {
+void tradnavOverlayFactory::DrawBearingLineInViewPort(PlugIn_ViewPort *BBox) {
   wxColour colour = wxColour("BLACK");
   wxBrush brush(colour);
   c_GLcolour = colour;  // for filling GL arrows
@@ -1216,7 +1216,7 @@ void TradNavOverlayFactory::DrawBearingLineInViewPort(PlugIn_ViewPort *BBox) {
   }
 }
 
-wxImage &TradNavOverlayFactory::DrawLabelEBL(double value, int precision) {
+wxImage &tradnavOverlayFactory::DrawLabelEBL(double value, int precision) {
   wxString labels;
 
   labels = wxString::Format("%3.0f", value);
@@ -1308,7 +1308,7 @@ wxImage &TradNavOverlayFactory::DrawLabelEBL(double value, int precision) {
   return image;
 }
 
-void TradNavOverlayFactory::DrawRFInViewPort(PlugIn_ViewPort *BBox) {
+void tradnavOverlayFactory::DrawRFInViewPort(PlugIn_ViewPort *BBox) {
   wxColour colour = wxColour("BLACK");
   wxBrush brush(colour);
   c_GLcolour = colour;  // for filling GL arrows
@@ -1381,7 +1381,7 @@ void TradNavOverlayFactory::DrawRFInViewPort(PlugIn_ViewPort *BBox) {
   }
 }
 
-wxString TradNavOverlayFactory::FormatBearing(double dbearing) {
+wxString tradnavOverlayFactory::FormatBearing(double dbearing) {
   wxString bearing_angle = wxString::Format("%3.0f", dbearing);
 
   if (dbearing < 10.) {

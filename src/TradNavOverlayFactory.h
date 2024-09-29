@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  TradNav Plugin Freinds
+ * Purpose:  tradnav Plugin Freinds
  * Author:   David Register
  *
  ***************************************************************************
@@ -53,15 +53,15 @@ static wxPoint ReverseArrowArray[NUM_REVERSE_ARROW_POINTS] = {
     wxPoint(45, -110),  wxPoint(100, -110), wxPoint(100, -100)};
 
 //----------------------------------------------------------------------------------------------------------
-//    TradNav Overlay Factory Specification
+//    tradnav Overlay Factory Specification
 //----------------------------------------------------------------------------------------------------------
 
-class TradNavUIDialog;
+class tradnavUIDialog;
 
-class TradNavOverlayFactory {
+class tradnavOverlayFactory {
 public:
-  TradNavOverlayFactory(TradNavUIDialog &dlg);
-  ~TradNavOverlayFactory();
+  tradnavOverlayFactory(tradnavUIDialog &dlg);
+  ~tradnavOverlayFactory();
 
   void SetSettings(bool hiDefGraphics, bool GradualColors) {
     m_hiDefGraphics = hiDefGraphics;
@@ -136,5 +136,5 @@ private:
   std::map<double, wxImage> m_labelCache;
   std::map<wxString, wxImage> m_labelCacheText;
 
-  TradNavUIDialog &m_dlg;
+  tradnavUIDialog &m_dlg;
 };

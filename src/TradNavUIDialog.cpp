@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  TradNav Object
+ * Purpose:  tradnav Object
  * Author:   Mike Rossiter
  *
  ***************************************************************************
@@ -37,7 +37,7 @@
 #include <math.h>
 #include <time.h>
 
-#include "TradNav_pi.h"
+#include "tradnav_pi.h"
 #include "icons.h"
 #include <wx/arrimpl.cpp>
 
@@ -108,8 +108,8 @@ GetRouteDialog::GetRouteDialog(wxWindow* parent, wxWindowID id,
 
 GetRouteDialog::~GetRouteDialog() {}
 
-TradNavUIDialog::TradNavUIDialog(wxWindow* parent, TradNav_pi* ppi)
-    : TradNavUIDialogBase(parent) {
+tradnavUIDialog::tradnavUIDialog(wxWindow* parent, tradnav_pi* ppi)
+    : tradnavUIDialogBase(parent) {
   pParent = parent;
   pPlugIn = ppi;
   m_bIdentify = false;
@@ -119,16 +119,16 @@ TradNavUIDialog::TradNavUIDialog(wxWindow* parent, TradNav_pi* ppi)
   wxFileConfig* pConf = GetOCPNConfigObject();
 
   if (pConf) {
-    pConf->SetPath(_T ( "/PlugIns/TradNav" ));
+    pConf->SetPath(_T ( "/PlugIns/tradnav" ));
 
-    pConf->Read(_T("TradNavFolder"), &m_FolderSelected);
+    pConf->Read(_T("tradnavFolder"), &m_FolderSelected);
   }
 
   // m_dirPicker1->GetTextCtrlValue();
 
   // wxMessageBox(m_FolderSelected);
 
-  this->Connect(wxEVT_MOVE, wxMoveEventHandler(TradNavUIDialog::OnMove));
+  this->Connect(wxEVT_MOVE, wxMoveEventHandler(tradnavUIDialog::OnMove));
 
   m_dtNow = wxDateTime::Now();
   m_dtNow.MakeUTC(false);
@@ -147,12 +147,12 @@ TradNavUIDialog::TradNavUIDialog(wxWindow* parent, TradNav_pi* ppi)
   ebl_range = 5.;
 }
 
-TradNavUIDialog::~TradNavUIDialog() {
+tradnavUIDialog::~tradnavUIDialog() {
   wxFileConfig* pConf = GetOCPNConfigObject();
   ;
 
   if (pConf) {
-    pConf->SetPath(_T ( "/PlugIns/TradNav" ));
+    pConf->SetPath(_T ( "/PlugIns/tradnav" ));
   }
 
   i_vector.clear();
@@ -160,7 +160,7 @@ TradNavUIDialog::~TradNavUIDialog() {
   d_vector.clear();
 }
 
-void TradNavUIDialog::SetViewPort(PlugIn_ViewPort* vp) {
+void tradnavUIDialog::SetViewPort(PlugIn_ViewPort* vp) {
   if (m_vp == vp) return;
 
   m_vp = new PlugIn_ViewPort(*vp);
@@ -170,8 +170,8 @@ void TradNavUIDialog::SetViewPort(PlugIn_ViewPort* vp) {
   ppm = vp->view_scale_ppm;
 }
 
-void TradNavUIDialog::OnClose(wxCloseEvent& event) {
-  pPlugIn->OnTradNavDialogClose();
+void tradnavUIDialog::OnClose(wxCloseEvent& event) {
+  pPlugIn->OntradnavDialogClose();
 
   i_vector.clear();
   r_vector.clear();
@@ -180,25 +180,25 @@ void TradNavUIDialog::OnClose(wxCloseEvent& event) {
   DeleteChartedRoute();
 }
 
-void TradNavUIDialog::OnMove(wxMoveEvent& event) {
+void tradnavUIDialog::OnMove(wxMoveEvent& event) {
   //    Record the dialog position
   wxPoint p = GetPosition();
-  pPlugIn->SetTradNavDialogX(p.x);
-  pPlugIn->SetTradNavDialogY(p.y);
+  pPlugIn->SettradnavDialogX(p.x);
+  pPlugIn->SettradnavDialogY(p.y);
 
   event.Skip();
 }
 
-void TradNavUIDialog::OnSize(wxSizeEvent& event) {
+void tradnavUIDialog::OnSize(wxSizeEvent& event) {
   //    Record the dialog size
   wxSize p = event.GetSize();
-  pPlugIn->SetTradNavDialogSizeX(p.x);
-  pPlugIn->SetTradNavDialogSizeY(p.y);
+  pPlugIn->SettradnavDialogSizeX(p.x);
+  pPlugIn->SettradnavDialogSizeY(p.y);
 
   event.Skip();
 }
 
-wxString TradNavUIDialog::MakeDateTimeLabel(wxDateTime myDateTime) {
+wxString tradnavUIDialog::MakeDateTimeLabel(wxDateTime myDateTime) {
   wxDateTime dt = myDateTime;
 
   wxString s2 = dt.Format("%Y-%m-%d");
@@ -208,18 +208,18 @@ wxString TradNavUIDialog::MakeDateTimeLabel(wxDateTime myDateTime) {
   return dateLabel;
 }
 
-void TradNavUIDialog::OnInformation(wxCommandEvent& event) {}
+void tradnavUIDialog::OnInformation(wxCommandEvent& event) {}
 
-void TradNavUIDialog::AddChartRoute(wxString myRoute) {}
+void tradnavUIDialog::AddChartRoute(wxString myRoute) {}
 
-int TradNavUIDialog::GetRandomNumber(int range_min, int range_max) {
+int tradnavUIDialog::GetRandomNumber(int range_min, int range_max) {
   long u = (long)wxRound(
       ((double)rand() / ((double)(RAND_MAX) + 1) * (range_max - range_min)) +
       range_min);
   return (int)u;
 }
 
-void TradNavUIDialog::SaveIndexRangeDirection(wxString route_name,
+void tradnavUIDialog::SaveIndexRangeDirection(wxString route_name,
                                               wxString date_stamp) {
   // Create Main level XML container
   xml_document xmlDoc;
@@ -349,18 +349,18 @@ void TradNavUIDialog::SaveIndexRangeDirection(wxString route_name,
   xmlDoc.save_file(file_path.mb_str());
 }
 
-void TradNavUIDialog::SelectRoutePoints(wxString routeName) {}
+void tradnavUIDialog::SelectRoutePoints(wxString routeName) {}
 
-wxString TradNavUIDialog::SelectRoute(bool isDR) { return ""; }
+wxString tradnavUIDialog::SelectRoute(bool isDR) { return ""; }
 
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 /*:: This function converts decimal degrees to radians :*/
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
-double TradNavUIDialog::deg2rad(double deg) { return (deg * pi / 180); }
+double tradnavUIDialog::deg2rad(double deg) { return (deg * pi / 180); }
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 /*:: This function converts radians to decimal degrees :*/
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
-double TradNavUIDialog::rad2deg(double rad) { return (rad * 180 / pi); };
+double tradnavUIDialog::rad2deg(double rad) { return (rad * 180 / pi); };
 
 struct xml_string_writer : pugi::xml_writer {
   std::string result;
@@ -382,7 +382,7 @@ std::string InnerXML(pugi::xml_node target) {
   return writer.result;
 }
 
-void TradNavUIDialog::AddTestItems(wxCommandEvent& event) {
+void tradnavUIDialog::AddTestItems(wxCommandEvent& event) {
   wxString filename;
   wxFileDialog dlg(this, "Select file", wxEmptyString, wxEmptyString,
                    "RTZ files(*.rtz) | *.*;*.*", wxFD_OPEN);
@@ -451,7 +451,7 @@ void TradNavUIDialog::AddTestItems(wxCommandEvent& event) {
   wxString testcf = wxString::Format("%i", cf);
 }
 
-int TradNavUIDialog::GetScale(double myChartScale) {
+int tradnavUIDialog::GetScale(double myChartScale) {
   // If myChartScale is not exactly as shown in OpenCPN get the best scale to
   // use.
 
@@ -567,7 +567,7 @@ int TradNavUIDialog::GetScale(double myChartScale) {
     return 6;
 }
 
-void TradNavUIDialog::key_shortcut(wxKeyEvent& event) {
+void tradnavUIDialog::key_shortcut(wxKeyEvent& event) {
   // wxMessageBox("here");
   //  of course, it doesn't have to be the control key. You can use others:
   //  http://docs.wxwidgets.org/stable/wx_wxkeyevent.html
@@ -590,7 +590,7 @@ void TradNavUIDialog::key_shortcut(wxKeyEvent& event) {
   event.Skip();
 }
 
-void TradNavUIDialog::MakeBoxPoints() {
+void tradnavUIDialog::MakeBoxPoints() {
   myZoom = GetScale(m_vp->chart_scale);
 
   double boxlat = m_vp->clat;
@@ -647,7 +647,7 @@ void TradNavUIDialog::MakeBoxPoints() {
   myPixHeight = pixheight * 2;
 }
 
-void TradNavUIDialog::OnNewRoute(wxCommandEvent& event) {
+void tradnavUIDialog::OnNewRoute(wxCommandEvent& event) {
   // This sleep is needed to give the time for the currently pressed modifier
   // keys, if any, to be released. Notice that Control modifier could well be
   // pressed if this command was activated from the menu using accelerator
@@ -677,7 +677,7 @@ void TradNavUIDialog::OnNewRoute(wxCommandEvent& event) {
   // sim.KeyUp(82, wxMOD_CONTROL);
 }
 
-void TradNavUIDialog::WriteRTZ(wxString route_name) {
+void tradnavUIDialog::WriteRTZ(wxString route_name) {
   // Select the route from the route table
   //
   // Create Main level XML container
@@ -737,7 +737,7 @@ void TradNavUIDialog::WriteRTZ(wxString route_name) {
   xmlDoc.save_file(file_path.mb_str());
 }
 
-void TradNavUIDialog::WriteEXT(wxString route_name) {
+void tradnavUIDialog::WriteEXT(wxString route_name) {
   // Select the route from the route table
   //
   // Create Main level XML container
@@ -768,7 +768,7 @@ void TradNavUIDialog::WriteEXT(wxString route_name) {
   xmlDoc.save_file(file_path.mb_str());
 }
 
-void TradNavUIDialog::DeleteEXTFile(wxString route_name) {
+void tradnavUIDialog::DeleteEXTFile(wxString route_name) {
   wxString rt = route_name;
   wxString file_folder = pPlugIn->StandardPathEXT();
   wxString file_name = file_folder + rt + ".xml";
@@ -782,7 +782,7 @@ void TradNavUIDialog::DeleteEXTFile(wxString route_name) {
   }
 }
 
-void TradNavUIDialog::OnBearingLine(wxCommandEvent& event) {
+void tradnavUIDialog::OnBearingLine(wxCommandEvent& event) {
   ebl_lat = centreLat;
   ebl_lon = centreLon;
 
@@ -818,7 +818,7 @@ void TradNavUIDialog::OnBearingLine(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::SetBearing(wxString bearing_name, BearingPoint start,
+void tradnavUIDialog::SetBearing(wxString bearing_name, BearingPoint start,
                                  BearingPoint end) {
   b_target = new BearingTarget;
   b_target->route_name = bearing_name;
@@ -851,7 +851,7 @@ void TradNavUIDialog::SetBearing(wxString bearing_name, BearingPoint start,
   SaveBearingInfo(mySelectedRoute, date_stamp);
 }
 
-void TradNavUIDialog::SaveBearingInfo(wxString route_name,
+void tradnavUIDialog::SaveBearingInfo(wxString route_name,
                                       wxString date_stamp) {
   // Create Main level XML container
   xml_document xmlDoc;
@@ -923,7 +923,7 @@ void TradNavUIDialog::SaveBearingInfo(wxString route_name,
   xmlDoc.save_file(file_path.mb_str());
 }
 
-void TradNavUIDialog::OnBearingLineDelete(wxCommandEvent& event) {
+void tradnavUIDialog::OnBearingLineDelete(wxCommandEvent& event) {
   double label_distance = 1000;
   double minDist = 500.0;
   int index_num = 0;
@@ -961,7 +961,7 @@ void TradNavUIDialog::OnBearingLineDelete(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::OnIndex(wxCommandEvent& event) {
+void tradnavUIDialog::OnIndex(wxCommandEvent& event) {
   ebl_lat = pPlugIn->GetCursorLat();
   ebl_lon = pPlugIn->GetCursorLon();
 
@@ -973,7 +973,7 @@ void TradNavUIDialog::OnIndex(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::GetIndex(Position* A, Position* B) {
+void tradnavUIDialog::GetIndex(Position* A, Position* B) {
   double value = 0.0;
   A->lat.ToDouble(&value);
   double lat1 = value;
@@ -1044,7 +1044,7 @@ void TradNavUIDialog::GetIndex(Position* A, Position* B) {
   wxString extensions_file = mySelectedRoute + ".xml";
   SaveIndexRangeDirection(mySelectedRoute, date_stamp);
 }
-void TradNavUIDialog::OnIndexDelete(wxCommandEvent& event) {
+void tradnavUIDialog::OnIndexDelete(wxCommandEvent& event) {
   double label_distance = 1000;
   double minDist = 500.0;
   int index_num = 0;
@@ -1086,7 +1086,7 @@ void TradNavUIDialog::OnIndexDelete(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::OnRangeCircle(wxCommandEvent& event) {
+void tradnavUIDialog::OnRangeCircle(wxCommandEvent& event) {
   ebl_lat = centreLat;
   ebl_lon = centreLon;
 
@@ -1096,7 +1096,7 @@ void TradNavUIDialog::OnRangeCircle(wxCommandEvent& event) {
   setRangeCircle(range_centre);
 }
 
-void TradNavUIDialog::setRangeCircle(RangeTarget* range_centre) {
+void tradnavUIDialog::setRangeCircle(RangeTarget* range_centre) {
   m_bRunningFix = false;
 
   wxString first_num, second_num, third_num;
@@ -1125,7 +1125,7 @@ void TradNavUIDialog::setRangeCircle(RangeTarget* range_centre) {
   r_target->beginLat = range_centre->beginLat;
   r_target->beginLon = range_centre->beginLon;
 
-  double rs = this->m_range->GetValue();
+  double rs = m_range->GetValue();
 
   r_target->distance = rs;
 
@@ -1141,7 +1141,7 @@ void TradNavUIDialog::setRangeCircle(RangeTarget* range_centre) {
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::SaveRangeInfo(wxString route_name, wxString date_stamp) {
+void tradnavUIDialog::SaveRangeInfo(wxString route_name, wxString date_stamp) {
   // Create Main level XML container
   xml_document xmlDoc;
 
@@ -1212,7 +1212,7 @@ void TradNavUIDialog::SaveRangeInfo(wxString route_name, wxString date_stamp) {
   xmlDoc.save_file(file_path.mb_str());
 }
 
-void TradNavUIDialog::OnRangeCircleDelete(wxCommandEvent& event) {
+void tradnavUIDialog::OnRangeCircleDelete(wxCommandEvent& event) {
   double label_distance = 1000;
   double minDist = 500.0;
   int index_num = 0;
@@ -1249,7 +1249,7 @@ void TradNavUIDialog::OnRangeCircleDelete(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::OnRange(wxCommandEvent& event) {
+void tradnavUIDialog::OnRange(wxCommandEvent& event) {
   if (mySelectedLeg == 999) {
     wxMessageBox("Please activate the waypoint for the leg");
     return;
@@ -1260,7 +1260,7 @@ void TradNavUIDialog::OnRange(wxCommandEvent& event) {
   GetRange(active_waypoint, range_object);
 }
 
-void TradNavUIDialog::GetRange(Position* A, Position* B) {
+void tradnavUIDialog::GetRange(Position* A, Position* B) {
   double value = 0.0;
   A->lat.ToDouble(&value);
   double lat1 = value;
@@ -1302,7 +1302,7 @@ void TradNavUIDialog::GetRange(Position* A, Position* B) {
   SaveIndexRangeDirection(mySelectedRoute, date_stamp);
 }
 
-void TradNavUIDialog::OnRangeDelete(wxCommandEvent& event) {
+void tradnavUIDialog::OnRangeDelete(wxCommandEvent& event) {
   double label_distance = 1000;
   double minDist = 500.0;
   int index_num = 0;
@@ -1343,7 +1343,7 @@ void TradNavUIDialog::OnRangeDelete(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::OnDirection(wxCommandEvent& event) {
+void tradnavUIDialog::OnDirection(wxCommandEvent& event) {
   if (mySelectedLeg == 999) {
     wxMessageBox("Please activate the waypoint for the leg");
     return;
@@ -1356,7 +1356,7 @@ void TradNavUIDialog::OnDirection(wxCommandEvent& event) {
   GetDirection(active_waypoint, prev_waypoint);
 }
 
-void TradNavUIDialog::GetDirection(Position* A, Position* B) {
+void tradnavUIDialog::GetDirection(Position* A, Position* B) {
   double value = 0.0;
   A->lat.ToDouble(&value);
   double lat1 = value;
@@ -1384,7 +1384,7 @@ void TradNavUIDialog::GetDirection(Position* A, Position* B) {
   SaveIndexRangeDirection(mySelectedRoute, date_stamp);
 }
 
-void TradNavUIDialog::OnDirectionDelete(wxCommandEvent& event) {
+void tradnavUIDialog::OnDirectionDelete(wxCommandEvent& event) {
   double label_distance = 1000;
   double minDist = 500.0;
   int index_num = 0;
@@ -1425,7 +1425,7 @@ void TradNavUIDialog::OnDirectionDelete(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::OnSaveExtensions(wxCommandEvent& event) {
+void tradnavUIDialog::OnSaveExtensions(wxCommandEvent& event) {
   wxString date_stamp = pPlugIn->GetRTZDateStamp(mySelectedRoute);
   wxString extensions_file = mySelectedRoute + ".xml";
   SaveIndexRangeDirection(mySelectedRoute, date_stamp);
@@ -1435,7 +1435,7 @@ void TradNavUIDialog::OnSaveExtensions(wxCommandEvent& event) {
   m_bDrawDirectionArrow = false;
 }
 
-void TradNavUIDialog::ReadRTZ(wxString file_name) {
+void tradnavUIDialog::ReadRTZ(wxString file_name) {
   my_positions.clear();  // Set up a new vector
 
   wxString file = file_name;
@@ -1521,7 +1521,7 @@ void TradNavUIDialog::ReadRTZ(wxString file_name) {
   wxString mycount = wxString::Format("%i", count);
 }
 
-void TradNavUIDialog::ReadEXT(wxString file_name) {
+void tradnavUIDialog::ReadEXT(wxString file_name) {
   i_vector.clear();  // Set up a new vector
   i_target = new IndexTarget;
   r_vector.clear();  // Set up a new vector
@@ -1650,7 +1650,7 @@ void TradNavUIDialog::ReadEXT(wxString file_name) {
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::OnContextMenu(double m_lat, double m_lon) {
+void tradnavUIDialog::OnContextMenu(double m_lat, double m_lon) {
   c_lat = m_lat;
   c_lon = m_lon;
 
@@ -1665,7 +1665,7 @@ void TradNavUIDialog::OnContextMenu(double m_lat, double m_lon) {
   // wxMessageBox(wxString::Format("%f",ebl_range))
 }
 
-int TradNavUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
+int tradnavUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
   double wpDistance = 1000;
   double rLat, rLon;
   double minDist = 500.0;
@@ -1731,7 +1731,7 @@ int TradNavUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
   return it_num;
 }
 
-Position* TradNavUIDialog::FindPreviousWaypoint(wxString ActiveWpt) {
+Position* tradnavUIDialog::FindPreviousWaypoint(wxString ActiveWpt) {
   active_waypoint = new Position;
   prev_waypoint = new Position;
   std::vector<Position>::iterator prev;
@@ -1778,7 +1778,7 @@ Position* TradNavUIDialog::FindPreviousWaypoint(wxString ActiveWpt) {
   return active_waypoint;
 }
 
-int TradNavUIDialog::DeleteChartedRoute() {
+int tradnavUIDialog::DeleteChartedRoute() {
   std::vector<std::unique_ptr<PlugIn_Route_Ex>> routes;
   auto uids = GetRouteGUIDArray();
   if (uids.size() > 1) {
@@ -1790,7 +1790,7 @@ int TradNavUIDialog::DeleteChartedRoute() {
   return 1;
 }
 
-double TradNavUIDialog::FindDistanceFromLeg(Position* A, Position* B,
+double tradnavUIDialog::FindDistanceFromLeg(Position* A, Position* B,
                                             Position* C) {
   double value = 0.0;
   A->lat.ToDouble(&value);
@@ -1829,7 +1829,7 @@ double TradNavUIDialog::FindDistanceFromLeg(Position* A, Position* B,
   return distance;
 }
 
-void TradNavUIDialog::RequestVariation() {
+void tradnavUIDialog::RequestVariation() {
   Json::Value value;
 
   wxDateTime time = time.FromUTC();
@@ -1856,21 +1856,21 @@ void TradNavUIDialog::RequestVariation() {
   // Unlock();
 }
 
-void TradNavUIDialog::OnButtonIdentify(wxCommandEvent& event) {
+void tradnavUIDialog::OnButtonIdentify(wxCommandEvent& event) {
   m_bIdentify = true;
   m_bEBL = false;
   m_bRunningFix = false;
 
   wxString first_num, second_num, third_num;
 
-  int fi = this->m_choiceFirstNum1->GetSelection();
-  wxString fs = this->m_choiceFirstNum1->GetString(fi);
+  int fi = m_choiceFirstNum1->GetSelection();
+  wxString fs = m_choiceFirstNum1->GetString(fi);
 
-  int si = this->m_choiceSecondNum1->GetSelection();
-  wxString ss = this->m_choiceSecondNum1->GetString(si);
+  int si = m_choiceSecondNum1->GetSelection();
+  wxString ss = m_choiceSecondNum1->GetString(si);
 
-  int ti = this->m_choiceThirdNum1->GetSelection();
-  wxString ts = this->m_choiceThirdNum1->GetString(ti);
+  int ti = m_choiceThirdNum1->GetSelection();
+  wxString ts = m_choiceThirdNum1->GetString(ti);
 
   wxString cs = fs + ss + ts;
 
@@ -1879,10 +1879,10 @@ void TradNavUIDialog::OnButtonIdentify(wxCommandEvent& event) {
   rev_brg = ebl_brg + 180;
   if (rev_brg > 360) rev_brg -= 360;
 
-  this->m_timer1.Start(200);
+  m_timer1.Start(200);
 }
 
-void TradNavUIDialog::OnButtonIdentify_off(wxCommandEvent& event) {
+void tradnavUIDialog::OnButtonIdentify_off(wxCommandEvent& event) {
   m_bIdentify = false;
   m_bEBL = false;
   m_bRunningFix = false;
@@ -1892,7 +1892,7 @@ void TradNavUIDialog::OnButtonIdentify_off(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::OnButtonEBL(wxCommandEvent& event) {
+void tradnavUIDialog::OnButtonEBL(wxCommandEvent& event) {
   m_bEBL = true;
   m_bIdentify = false;
   m_bRunningFix = false;
@@ -1900,21 +1900,21 @@ void TradNavUIDialog::OnButtonEBL(wxCommandEvent& event) {
   this->m_timer1.Start(200);
 }
 
-void TradNavUIDialog::OnButtonEBL_off(wxCommandEvent& event) {
+void tradnavUIDialog::OnButtonEBL_off(wxCommandEvent& event) {
   m_bEBL = false;
   m_bIdentify = false;
   m_bRunningFix = false;
 
-  this->m_EBLbearing->SetValue(wxEmptyString);
-  this->m_Lat1->SetValue(wxEmptyString);
-  this->m_Lon1->SetValue(wxEmptyString);
+  m_EBLbearing->SetValue(wxEmptyString);
+  m_Lat1->SetValue(wxEmptyString);
+  m_Lon1->SetValue(wxEmptyString);
 
   this->m_timer1.Stop();
 
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::OnTimer(wxTimerEvent& event) {
+void tradnavUIDialog::OnTimer(wxTimerEvent& event) {
   if (m_bIdentify) {
     MakeIdentifyEvent();
   } else if (m_bEBL) {
@@ -1922,7 +1922,29 @@ void TradNavUIDialog::OnTimer(wxTimerEvent& event) {
   }
 }
 
-void TradNavUIDialog::MakeIdentifyEvent() {
+void tradnavUIDialog::OnChoice(wxCommandEvent& event) {
+  int fi = m_choicePlot->GetSelection();
+  switch (fi) {
+    case 0: {
+      m_simplebook1->SetSelection(0);
+      break;
+    }
+    case 1: {
+      m_simplebook1->SetSelection(1);
+      break;
+    }
+    case 2: {
+      m_simplebook1->SetSelection(2);
+      break;
+    }
+    case 3: {
+      m_simplebook1->SetSelection(3);
+      break;
+    }
+  }
+}
+
+void tradnavUIDialog::MakeIdentifyEvent() {
   if (m_bIdentify) {
     // cursor_lat = pPlugIn->GetCursorLat();
     // cursor_lon = pPlugIn->GetCursorLon();
@@ -1961,7 +1983,7 @@ void TradNavUIDialog::MakeIdentifyEvent() {
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::MakeEBLEvent() {
+void tradnavUIDialog::MakeEBLEvent() {
   if (m_bEBL) {
     this->m_Lat1->SetValue(wxString::Format("%.6f", pPlugIn->GetCursorLat()));
     this->m_Lon1->SetValue(wxString::Format("%.6f", pPlugIn->GetCursorLon()));
@@ -1993,13 +2015,13 @@ void TradNavUIDialog::MakeEBLEvent() {
       brgs = r;
     }
 
-    this->m_EBLbearing->SetValue(brgs);
+    m_EBLbearing->SetValue(brgs);
   }
 
   RequestRefresh(pParent);
 }
 
-void TradNavUIDialog::OnPlotRunningFix(wxCommandEvent& event) {
+void tradnavUIDialog::OnPlotRunningFix(wxCommandEvent& event) {
   m_bRunningFix = true;
 
   ebl_lat = centreLat;

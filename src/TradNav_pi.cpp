@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  TradNav Plugin
+ * Purpose:  tradnav Plugin
  * Author:   David Register, Mike Rossiter
  *
  ***************************************************************************
@@ -36,21 +36,21 @@
 
 #include "ocpn_plugin.h"
 
-#include "TradNav_pi.h"
-#include "TradNavUIDialogBase.h"
-#include "TradNavUIDialog.h"
+#include "tradnav_pi.h"
+#include "tradnavUIDialogBase.h"
+#include "tradnavUIDialog.h"
 
 // the class factories, used to create and destroy instances of the PlugIn
 
 extern "C" DECL_EXP opencpn_plugin *create_pi(void *ppimgr) {
-  return new TradNav_pi(ppimgr);
+  return new tradnav_pi(ppimgr);
 }
 
 extern "C" DECL_EXP void destroy_pi(opencpn_plugin *p) { delete p; }
 
 //---------------------------------------------------------------------------------------------------------
 //
-//    TradNav PlugIn Implementation
+//    tradnav PlugIn Implementation
 //
 //---------------------------------------------------------------------------------------------------------
 
@@ -62,16 +62,16 @@ extern "C" DECL_EXP void destroy_pi(opencpn_plugin *p) { delete p; }
 //
 //---------------------------------------------------------------------------------------------------------
 
-TradNav_pi::TradNav_pi(void *ppimgr) : opencpn_plugin_118(ppimgr) {
+tradnav_pi::tradnav_pi(void *ppimgr) : opencpn_plugin_118(ppimgr) {
   // Create the PlugIn icons
   initialize_images();
 
   wxFileName fn;
 
-  auto path = GetPluginDataDir("TradNav_pi");
+  auto path = GetPluginDataDir("tradnav_pi");
   fn.SetPath(path);
   fn.AppendDir("data");
-  fn.SetFullName("TradNav_panel_icon.png");
+  fn.SetFullName("tradnav_panel_icon.png");
 
   path = fn.GetFullPath();
 
@@ -86,26 +86,26 @@ TradNav_pi::TradNav_pi(void *ppimgr) : opencpn_plugin_118(ppimgr) {
   if (panelIcon.IsOk())
     m_panelBitmap = wxBitmap(panelIcon);
   else
-    wxLogWarning("TradNav panel icon has NOT been loaded");
+    wxLogWarning("tradnav panel icon has NOT been loaded");
 
-  m_bShowTradNav = false;
+  m_bShowtradnav = false;
 }
 
-TradNav_pi::~TradNav_pi(void) {
-  delete _img_TradNav_pi;
-  delete _img_TradNav;
+tradnav_pi::~tradnav_pi(void) {
+  delete _img_tradnav_pi;
+  delete _img_tradnav;
 }
 
-int TradNav_pi::Init(void) {
-  AddLocaleCatalog(_T("opencpn-TradNav_pi"));
+int tradnav_pi::Init(void) {
+  AddLocaleCatalog(_T("opencpn-tradnav_pi"));
 
   // Set some default private member parameters
-  m_TradNav_dialog_x = 0;
-  m_TradNav_dialog_y = 0;
-  m_TradNav_dialog_sx = 200;
-  m_TradNav_dialog_sy = 400;
-  m_pTradNavDialog = NULL;
-  m_pTradNavOverlayFactory = NULL;
+  m_tradnav_dialog_x = 0;
+  m_tradnav_dialog_y = 0;
+  m_tradnav_dialog_sx = 200;
+  m_tradnav_dialog_sy = 400;
+  m_ptradnavDialog = NULL;
+  m_ptradnavOverlayFactory = NULL;
 
   ::wxDisplaySize(&m_display_width, &m_display_height);
 
@@ -169,21 +169,21 @@ int TradNav_pi::Init(void) {
  
 
   // Get a pointer to the opencpn display canvas, to use as a parent for the
-  // TradNav dialog
+  // tradnav dialog
   m_parent_window = GetOCPNCanvasWindow();
 
   //    This PlugIn needs a toolbar icon, so request its insertion if enabled
   //    locally
-  if (m_bTradNavShowIcon)
+  if (m_btradnavShowIcon)
 #ifdef ocpnUSE_SVG
     m_leftclick_tool_id = InsertPlugInToolSVG(
-        _T("TradNav"), _svg_TradNav, _svg_TradNav,
-        _svg_TradNav_toggled, wxITEM_CHECK, _("TradNav"), _T(""), NULL,
-        TradNav_TOOL_POSITION, 0, this);
+        _T("tradnav"), _svg_tradnav, _svg_tradnav,
+        _svg_tradnav_toggled, wxITEM_CHECK, _("tradnav"), _T(""), NULL,
+        tradnav_TOOL_POSITION, 0, this);
 #else
     m_leftclick_tool_id = InsertPlugInTool(
-        _T(""), _img_TradNav, _img_TradNav, wxITEM_CHECK,
-        _("TradNav"), _T(""), NULL, TradNav_TOOL_POSITION, 0, this);
+        _T(""), _img_tradnav, _img_tradnav, wxITEM_CHECK,
+        _("tradnav"), _T(""), NULL, tradnav_TOOL_POSITION, 0, this);
 #endif
 
   return (WANTS_OVERLAY_CALLBACK | WANTS_OPENGL_OVERLAY_CALLBACK |
@@ -192,57 +192,57 @@ int TradNav_pi::Init(void) {
           WANTS_NMEA_EVENTS);
 }
 
-bool TradNav_pi::DeInit(void) {
-  if (m_pTradNavDialog) {
-    m_pTradNavDialog->Close();
-    delete m_pTradNavDialog;
-    m_pTradNavDialog = NULL;
+bool tradnav_pi::DeInit(void) {
+  if (m_ptradnavDialog) {
+    m_ptradnavDialog->Close();
+    delete m_ptradnavDialog;
+    m_ptradnavDialog = NULL;
   }
 
-  delete m_pTradNavOverlayFactory;
-  m_pTradNavOverlayFactory = NULL;
+  delete m_ptradnavOverlayFactory;
+  m_ptradnavOverlayFactory = NULL;
 
   return true;
 }
 
-int TradNav_pi::GetAPIVersionMajor() { return atoi(API_VERSION); }
+int tradnav_pi::GetAPIVersionMajor() { return atoi(API_VERSION); }
 
-int TradNav_pi::GetAPIVersionMinor() {
+int tradnav_pi::GetAPIVersionMinor() {
   std::string v(API_VERSION);
   size_t dotpos = v.find('.');
   return atoi(v.substr(dotpos + 1).c_str());
 }
 
-int TradNav_pi::GetPlugInVersionMajor() { return PLUGIN_VERSION_MAJOR; }
+int tradnav_pi::GetPlugInVersionMajor() { return PLUGIN_VERSION_MAJOR; }
 
-int TradNav_pi::GetPlugInVersionMinor() { return PLUGIN_VERSION_MINOR; }
+int tradnav_pi::GetPlugInVersionMinor() { return PLUGIN_VERSION_MINOR; }
 
 int GetPlugInVersionPatch() { return PLUGIN_VERSION_PATCH; }
 int GetPlugInVersionPost() { return PLUGIN_VERSION_TWEAK; }
 const char *GetPlugInVersionPre() { return PKG_PRERELEASE; }
 const char *GetPlugInVersionBuild() { return PKG_BUILD_INFO; }
 
-wxBitmap *TradNav_pi::GetPlugInBitmap() { return &m_panelBitmap; }
+wxBitmap *tradnav_pi::GetPlugInBitmap() { return &m_panelBitmap; }
 
-wxString TradNav_pi::GetCommonName() { return PLUGIN_API_NAME; }
+wxString tradnav_pi::GetCommonName() { return PLUGIN_API_NAME; }
 
-wxString TradNav_pi::GetShortDescription() { return PKG_SUMMARY; }
+wxString tradnav_pi::GetShortDescription() { return PKG_SUMMARY; }
 
-wxString TradNav_pi::GetLongDescription() { return PKG_DESCRIPTION; }
+wxString tradnav_pi::GetLongDescription() { return PKG_DESCRIPTION; }
 
-void TradNav_pi::SetDefaults(void) {}
+void tradnav_pi::SetDefaults(void) {}
 
-int TradNav_pi::GetToolbarToolCount(void) { return 1; }
+int tradnav_pi::GetToolbarToolCount(void) { return 1; }
 
-void TradNav_pi::OnToolbarToolCallback(int id) {
-  if (!m_pTradNavDialog) {
-    m_pTradNavDialog = new TradNavUIDialog(m_parent_window, this);
-    wxPoint p = wxPoint(m_TradNav_dialog_x, m_TradNav_dialog_y);
-    m_pTradNavDialog->pPlugIn = this;
-    m_pTradNavDialog->Move(
+void tradnav_pi::OnToolbarToolCallback(int id) {
+  if (!m_ptradnavDialog) {
+    m_ptradnavDialog = new tradnavUIDialog(m_parent_window, this);
+    wxPoint p = wxPoint(m_tradnav_dialog_x, m_tradnav_dialog_y);
+    m_ptradnavDialog->pPlugIn = this;
+    m_ptradnavDialog->Move(
         0,
         0);  // workaround for gtk autocentre dialog behavior
-    m_pTradNavDialog->Move(p);
+    m_ptradnavDialog->Move(p);
 
     // Clear route & mark manager
     auto uids = GetRouteGUIDArray();
@@ -253,29 +253,29 @@ void TradNav_pi::OnToolbarToolCallback(int id) {
     /*
     // Fill the choices
     wxArrayString items;
-    if (m_pTradNavDialog->m_choiceObjectBearing) {
+    if (m_ptradnavDialog->m_choiceObjectBearing) {
       int count = 359;
       for (int n = 0; n < count; n++) {
         items.Add(wxString::Format("%i",n));
       }
     }
 
-    m_pTradNavDialog->m_choiceObjectBearing->Set(items);
+    m_ptradnavDialog->m_choiceObjectBearing->Set(items);
 */   
 
     // Create the drawing factory
-    m_pTradNavOverlayFactory =
-        new TradNavOverlayFactory(*m_pTradNavDialog);
-    m_pTradNavOverlayFactory->SetParentSize(m_display_width,
+    m_ptradnavOverlayFactory =
+        new tradnavOverlayFactory(*m_ptradnavDialog);
+    m_ptradnavOverlayFactory->SetParentSize(m_display_width,
                                                 m_display_height);
 
     wxMenu dummy_menu;
     m_position_menu_id = AddCanvasContextMenuItem(
-        new wxMenuItem(&dummy_menu, -1, _("TradNav sets this range")), this);
+        new wxMenuItem(&dummy_menu, -1, _("tradnav sets this range")), this);
     SetCanvasContextMenuItemViz(m_position_menu_id, true);
   }
 
-  // Qualify the TradNav dialog position
+  // Qualify the tradnav dialog position
   bool b_reset_pos = false;
 
 #ifdef __WXMSW__
@@ -283,10 +283,10 @@ void TradNav_pi::OnToolbarToolCallback(int id) {
   //  If the requested window does not intersect any installed monitor,
   //  then default to simple primary monitor positioning.
   RECT frame_title_rect;
-  frame_title_rect.left = m_TradNav_dialog_x;
-  frame_title_rect.top = m_TradNav_dialog_y;
-  frame_title_rect.right = m_TradNav_dialog_x + m_TradNav_dialog_sx;
-  frame_title_rect.bottom = m_TradNav_dialog_y + 30;
+  frame_title_rect.left = m_tradnav_dialog_x;
+  frame_title_rect.top = m_tradnav_dialog_y;
+  frame_title_rect.right = m_tradnav_dialog_x + m_tradnav_dialog_sx;
+  frame_title_rect.bottom = m_tradnav_dialog_y + 30;
 
   if (NULL == MonitorFromRect(&frame_title_rect, MONITOR_DEFAULTTONULL))
     b_reset_pos = true;
@@ -294,9 +294,9 @@ void TradNav_pi::OnToolbarToolCallback(int id) {
   //    Make sure drag bar (title bar) of window on Client Area of screen, with
   //    a little slop...
   wxRect window_title_rect;  // conservative estimate
-  window_title_rect.x = m_TradNav_dialog_x;
-  window_title_rect.y = m_TradNav_dialog_y;
-  window_title_rect.width = m_TradNav_dialog_sx;
+  window_title_rect.x = m_tradnav_dialog_x;
+  window_title_rect.y = m_tradnav_dialog_y;
+  window_title_rect.width = m_tradnav_dialog_sx;
   window_title_rect.height = 30;
 
   wxRect ClientRect = wxGetClientDisplayRect();
@@ -307,41 +307,41 @@ void TradNav_pi::OnToolbarToolCallback(int id) {
 #endif
 
   if (b_reset_pos) {
-    m_TradNav_dialog_x = 20;
-    m_TradNav_dialog_y = 170;
-    m_TradNav_dialog_sx = 300;
-    m_TradNav_dialog_sy = 540;
+    m_tradnav_dialog_x = 20;
+    m_tradnav_dialog_y = 170;
+    m_tradnav_dialog_sx = 300;
+    m_tradnav_dialog_sy = 540;
   }
 
-  // Toggle TradNav overlay display
-  m_bShowTradNav = !m_bShowTradNav;
+  // Toggle tradnav overlay display
+  m_bShowtradnav = !m_bShowtradnav;
 
   //    Toggle dialog?
-  if (m_bShowTradNav) {
-    m_pTradNavDialog->Show();
+  if (m_bShowtradnav) {
+    m_ptradnavDialog->Show();
   } else {
-    m_pTradNavDialog->Hide();
+    m_ptradnavDialog->Hide();
   }
 
   // Toggle is handled by the toolbar but we must keep plugin manager b_toggle
   // updated to actual status to ensure correct status upon toolbar rebuild
-  SetToolbarItemState(m_leftclick_tool_id, m_bShowTradNav);
+  SetToolbarItemState(m_leftclick_tool_id, m_bShowtradnav);
 
   RequestRefresh(m_parent_window);  // refresh main window
 }
 
-void TradNav_pi::OnTradNavDialogClose() {
-  m_bShowTradNav = false;
-  SetToolbarItemState(m_leftclick_tool_id, m_bShowTradNav);
+void tradnav_pi::OntradnavDialogClose() {
+  m_bShowtradnav = false;
+  SetToolbarItemState(m_leftclick_tool_id, m_bShowtradnav);
 
-  m_pTradNavDialog->Hide();
+  m_ptradnavDialog->Hide();
 
   SaveConfig();
 
   RequestRefresh(m_parent_window);  // refresh main window
 }
 
-int TradNav_pi::Add_RTZ_db(wxString route_name) {
+int tradnav_pi::Add_RTZ_db(wxString route_name) {
   wxString sql = wxString::Format(
       "INSERT INTO RTZ (route_name, created, submitted) "
       "VALUES ('%s', current_timestamp, 0)",
@@ -351,7 +351,7 @@ int TradNav_pi::Add_RTZ_db(wxString route_name) {
   return sqlite3_last_insert_rowid(m_database);
 }
 
-int TradNav_pi::GetRoute_Id(wxString route_name) {
+int tradnav_pi::GetRoute_Id(wxString route_name) {
   wxString rte = route_name;
   wxString sql1 = wxString::Format(
       "SELECT route_id FROM RTZ WHERE route_name = '%s'", route_name.c_str());
@@ -365,7 +365,7 @@ int TradNav_pi::GetRoute_Id(wxString route_name) {
   return dbGetIntNotNullValue(sql);
 }
 
-wxString TradNav_pi::GetRTZDateStamp(wxString route_name) {
+wxString tradnav_pi::GetRTZDateStamp(wxString route_name) {
   char **result;
   int n_rows;
   int n_columns;
@@ -392,14 +392,14 @@ wxString TradNav_pi::GetRTZDateStamp(wxString route_name) {
   return output;
 }
 
-void TradNav_pi::DeleteRTZ_Id(int id) {
+void tradnav_pi::DeleteRTZ_Id(int id) {
   wxString sql;
   sql = wxString::Format("DELETE FROM RTZ WHERE route_id = %i", id);
   // wxMessageBox(sql);
   dbQuery(sql);
 }
 
-void TradNav_pi::DeleteRTZ_Name(wxString route_name) {
+void tradnav_pi::DeleteRTZ_Name(wxString route_name) {
   wxString sql;
   sql = wxString::Format("DELETE FROM RTZ WHERE route_name = \'%s\'",
                          route_name.c_str());
@@ -412,7 +412,7 @@ void TradNav_pi::DeleteRTZ_Name(wxString route_name) {
     wxMessageBox("Error");
 }
 
-void TradNav_pi::DeleteEXT_Name(wxString route_name) {
+void tradnav_pi::DeleteEXT_Name(wxString route_name) {
   wxString sql;
   sql = wxString::Format("DELETE FROM EXT WHERE route_name = \'%s\'",
                          route_name.c_str());
@@ -425,7 +425,7 @@ void TradNav_pi::DeleteEXT_Name(wxString route_name) {
     wxMessageBox("Error");
 }
 
-int TradNav_pi::Add_EXT_db(wxString extensions_file, wxString route_name,
+int tradnav_pi::Add_EXT_db(wxString extensions_file, wxString route_name,
                                wxString rtz_date_stamp) {
   wxString sql = wxString::Format(
       "INSERT INTO EXT (extensions_file, route_name, rtz_date_stamp, created, "
@@ -437,7 +437,7 @@ int TradNav_pi::Add_EXT_db(wxString extensions_file, wxString route_name,
   return sqlite3_last_insert_rowid(m_database);
 }
 
-bool TradNav_pi::dbQuery(wxString sql) {
+bool tradnav_pi::dbQuery(wxString sql) {
   if (!b_dbUsable) return false;
   ret = sqlite3_exec(m_database, sql.mb_str(), NULL, NULL, &err_msg);
   if (ret != SQLITE_OK) {
@@ -451,7 +451,7 @@ bool TradNav_pi::dbQuery(wxString sql) {
   return b_dbUsable;
 }
 
-int TradNav_pi::dbGetIntNotNullValue(wxString sql) {
+int tradnav_pi::dbGetIntNotNullValue(wxString sql) {
   char **result;
   int n_rows;
   int n_columns;
@@ -465,7 +465,7 @@ int TradNav_pi::dbGetIntNotNullValue(wxString sql) {
     return 0;
 }
 
-void TradNav_pi::dbGetTable(wxString sql, char ***results, int &n_rows,
+void tradnav_pi::dbGetTable(wxString sql, char ***results, int &n_rows,
                                 int &n_columns) {
   ret = sqlite3_get_table(m_database, sql.mb_str(), results, &n_rows,
                           &n_columns, &err_msg);
@@ -478,11 +478,11 @@ void TradNav_pi::dbGetTable(wxString sql, char ***results, int &n_rows,
   }
 }
 
-void TradNav_pi::dbFreeResults(char **results) {
+void tradnav_pi::dbFreeResults(char **results) {
   sqlite3_free_table(results);
 }
 
-wxString TradNav_pi::StandardPath() {
+wxString tradnav_pi::StandardPath() {
   wxString stdPath(*GetpPrivateApplicationDataLocation());
   wxString s = wxFileName::GetPathSeparator();
 
@@ -495,7 +495,7 @@ wxString TradNav_pi::StandardPath() {
   return stdPath;
 }
 
-wxString TradNav_pi::StandardPathRTZ() {
+wxString tradnav_pi::StandardPathRTZ() {
   wxString stdPath(*GetpPrivateApplicationDataLocation());
   wxString s = wxFileName::GetPathSeparator();
 
@@ -506,7 +506,7 @@ wxString TradNav_pi::StandardPathRTZ() {
   return stdPath;
 }
 
-wxString TradNav_pi::StandardPathEXT() {
+wxString tradnav_pi::StandardPathEXT() {
   wxString stdPath(*GetpPrivateApplicationDataLocation());
   wxString s = wxFileName::GetPathSeparator();
 
@@ -517,55 +517,55 @@ wxString TradNav_pi::StandardPathEXT() {
   return stdPath;
 }
 
-bool TradNav_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) {
-  if (!m_pTradNavDialog || !m_pTradNavDialog->IsShown() ||
-      !m_pTradNavOverlayFactory)
+bool tradnav_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) {
+  if (!m_ptradnavDialog || !m_ptradnavDialog->IsShown() ||
+      !m_ptradnavOverlayFactory)
     return false;
 
-  if (m_pTradNavDialog) {
-    m_pTradNavDialog->SetViewPort(vp);
-    m_pTradNavDialog->MakeBoxPoints();
+  if (m_ptradnavDialog) {
+    m_ptradnavDialog->SetViewPort(vp);
+    m_ptradnavDialog->MakeBoxPoints();
   }
 
   piDC pidc(dc);
 
-  m_pTradNavOverlayFactory->RenderOverlay(pidc, *vp);
+  m_ptradnavOverlayFactory->RenderOverlay(pidc, *vp);
   return true;
 }
 
-bool TradNav_pi::RenderGLOverlay(wxGLContext *pcontext,
+bool tradnav_pi::RenderGLOverlay(wxGLContext *pcontext,
                                      PlugIn_ViewPort *vp) {
-  if (!m_pTradNavDialog || !m_pTradNavDialog->IsShown() ||
-      !m_pTradNavOverlayFactory)
+  if (!m_ptradnavDialog || !m_ptradnavDialog->IsShown() ||
+      !m_ptradnavOverlayFactory)
     return false;
 
-  if (m_pTradNavDialog) {
-    m_pTradNavDialog->SetViewPort(vp);
-    m_pTradNavDialog->MakeBoxPoints();
+  if (m_ptradnavDialog) {
+    m_ptradnavDialog->SetViewPort(vp);
+    m_ptradnavDialog->MakeBoxPoints();
   }
 
   piDC piDC;
   glEnable(GL_BLEND);
   piDC.SetVP(vp);
 
-  m_pTradNavOverlayFactory->RenderOverlay(piDC, *vp);
+  m_ptradnavOverlayFactory->RenderOverlay(piDC, *vp);
   return true;
 }
 
-void TradNav_pi::SetPositionFix(PlugIn_Position_Fix &pfix) {
+void tradnav_pi::SetPositionFix(PlugIn_Position_Fix &pfix) {
   m_ship_lon = pfix.Lon;
   m_ship_lat = pfix.Lat;
   // std::cout<<"Ship--> Lat: "<<m_ship_lat<<" Lon: "<<m_ship_lon<<std::endl;
   //}
 }
-bool TradNav_pi::LoadConfig(void) {
+bool tradnav_pi::LoadConfig(void) {
   wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
 
   if (!pConf) return false;
 
-  pConf->SetPath(_T( "/PlugIns/TradNav" ));
+  pConf->SetPath(_T( "/PlugIns/tradnav" ));
 
-  m_CopyFolderSelected = pConf->Read(_T( "TradNavFolder" ));
+  m_CopyFolderSelected = pConf->Read(_T( "tradnavFolder" ));
 
   if (m_CopyFolderSelected == wxEmptyString) {
     wxString g_SData_Locn = *GetpSharedDataLocation();
@@ -576,51 +576,51 @@ bool TradNav_pi::LoadConfig(void) {
     m_CopyFolderSelected = *pTC_Dir;
   }
 
-  m_TradNav_dialog_sx = pConf->Read(_T( "TradNavDialogSizeX" ), 300L);
-  m_TradNav_dialog_sy = pConf->Read(_T( "TradNavDialogSizeY" ), 540L);
-  m_TradNav_dialog_x = pConf->Read(_T( "TradNavDialogPosX" ), 20L);
-  m_TradNav_dialog_y = pConf->Read(_T( "TradNavDialogPosY" ), 170L);
+  m_tradnav_dialog_sx = pConf->Read(_T( "tradnavDialogSizeX" ), 300L);
+  m_tradnav_dialog_sy = pConf->Read(_T( "tradnavDialogSizeY" ), 540L);
+  m_tradnav_dialog_x = pConf->Read(_T( "tradnavDialogPosX" ), 20L);
+  m_tradnav_dialog_y = pConf->Read(_T( "tradnavDialogPosY" ), 170L);
 
   return true;
 }
 
-bool TradNav_pi::SaveConfig(void) {
+bool tradnav_pi::SaveConfig(void) {
   wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
 
   if (!pConf) return false;
 
-  pConf->SetPath(_T( "/PlugIns/TradNav" ));
+  pConf->SetPath(_T( "/PlugIns/tradnav" ));
 
-  pConf->Write(_T( "TradNavFolder" ), m_CopyFolderSelected);
+  pConf->Write(_T( "tradnavFolder" ), m_CopyFolderSelected);
 
-  pConf->Write(_T( "TradNavDialogSizeX" ), m_TradNav_dialog_sx);
-  pConf->Write(_T( "TradNavDialogSizeY" ), m_TradNav_dialog_sy);
-  pConf->Write(_T( "TradNavDialogPosX" ), m_TradNav_dialog_x);
-  pConf->Write(_T( "TradNavDialogPosY" ), m_TradNav_dialog_y);
+  pConf->Write(_T( "tradnavDialogSizeX" ), m_tradnav_dialog_sx);
+  pConf->Write(_T( "tradnavDialogSizeY" ), m_tradnav_dialog_sy);
+  pConf->Write(_T( "tradnavDialogPosX" ), m_tradnav_dialog_x);
+  pConf->Write(_T( "tradnavDialogPosY" ), m_tradnav_dialog_y);
 
   return true;
 }
 
-void TradNav_pi::SetColorScheme(PI_ColorScheme cs) {
-  DimeWindow(m_pTradNavDialog);
+void tradnav_pi::SetColorScheme(PI_ColorScheme cs) {
+  DimeWindow(m_ptradnavDialog);
 }
 
-void TradNav_pi::OnContextMenuItemCallback(int id) {
-  if (!m_pTradNavDialog) return;
+void tradnav_pi::OnContextMenuItemCallback(int id) {
+  if (!m_ptradnavDialog) return;
 
   if (id == m_position_menu_id) {
     m_cursor_lat = GetCursorLat();
     m_cursor_lon = GetCursorLon();
-    m_pTradNavDialog->OnContextMenu(m_cursor_lat, m_cursor_lon);
+    m_ptradnavDialog->OnContextMenu(m_cursor_lat, m_cursor_lon);
   }
 }
 
-void TradNav_pi::SetCursorLatLon(double lat, double lon) {
+void tradnav_pi::SetCursorLatLon(double lat, double lon) {
   m_cursor_lat = lat;
   m_cursor_lon = lon;
 }
 
-void TradNav_pi::SetPluginMessage(wxString &message_id,
+void tradnav_pi::SetPluginMessage(wxString &message_id,
                                   wxString &message_body) {
 
   if (message_id == _T("WMM_VARIATION_BOAT")) {

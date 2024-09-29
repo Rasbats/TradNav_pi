@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  TradNav Plugin
+ * Purpose:  tradnav Plugin
  * Author:   David Register, Mike Rossiter
  *
  ***************************************************************************
@@ -24,8 +24,8 @@
  ***************************************************************************
  */
 
-#ifndef _TradNavPI_H_
-#define _TradNavPI_H_
+#ifndef _tradnavPI_H_
+#define _tradnavPI_H_
 
 #include "wx/wxprec.h"
 
@@ -36,8 +36,8 @@
 
 #include <sqlite3.h>
 #include "ocpn_plugin.h"
-#include "TradNavOverlayFactory.h"
-#include "TradNavUIDialog.h"
+#include "tradnavOverlayFactory.h"
+#include "tradnavUIDialog.h"
 #include <wx/datetime.h>
 #include "pidc.h"
 #include <wx/tokenzr.h>
@@ -48,7 +48,7 @@
 #define DATABASE_NAME "finSAR.db"
 
 class piDC;
-class TradNavUIDialog;
+class tradnavUIDialog;
 
 #define ABOUT_AUTHOR_URL "http://mikerossiter.co.uk"
 
@@ -58,12 +58,12 @@ class TradNavUIDialog;
 //    The PlugIn Class Definition
 //----------------------------------------------------------------------------------------------------------
 
-#define TradNav_TOOL_POSITION -1  // Request default positioning of toolbar tool
+#define tradnav_TOOL_POSITION -1  // Request default positioning of toolbar tool
 
-class TradNav_pi : public opencpn_plugin_118 {
+class tradnav_pi : public opencpn_plugin_118 {
 public:
-  TradNav_pi(void *ppimgr);
-  ~TradNav_pi(void);
+  tradnav_pi(void *ppimgr);
+  ~tradnav_pi(void);
 
   //    The required PlugIn Methods
   int Init(void);
@@ -91,10 +91,10 @@ public:
   double GetCursorLat(void) { return m_cursor_lat; }
 
   // Other public methods
-  void SetTradNavDialogX(int x) { m_TradNav_dialog_x = x; };
-  void SetTradNavDialogY(int x) { m_TradNav_dialog_y = x; }
-  void SetTradNavDialogSizeX(int x) { m_TradNav_dialog_sx = x; }
-  void SetTradNavDialogSizeY(int x) { m_TradNav_dialog_sy = x; }
+  void SettradnavDialogX(int x) { m_tradnav_dialog_x = x; };
+  void SettradnavDialogY(int x) { m_tradnav_dialog_y = x; }
+  void SettradnavDialogSizeX(int x) { m_tradnav_dialog_sx = x; }
+  void SettradnavDialogSizeY(int x) { m_tradnav_dialog_sy = x; }
   void SetColorScheme(PI_ColorScheme cs);
   double GetShipLon(void) { return m_ship_lon; }
   double GetShipLat(void) { return m_ship_lat; }
@@ -104,26 +104,26 @@ public:
   void SetPluginMessage(wxString &message_id, wxString &message_body);
 
       // bool MouseEventHook(wxMouseEvent &event);
-      void OnTradNavDialogClose();
+      void OntradnavDialogClose();
 
   wxString GetFolderSelected() { return m_CopyFolderSelected; }
   int GetIntervalSelected() { return m_CopyIntervalSelected; }
 
-  TradNavOverlayFactory *GetTradNavOverlayFactory() {
-    return m_pTradNavOverlayFactory;
+  tradnavOverlayFactory *GettradnavOverlayFactory() {
+    return m_ptradnavOverlayFactory;
   }
 
   double m_boat_lat, m_boat_lon;
 
   double m_tr_spd;
   double m_tr_dir;
-  TradNavOverlayFactory *m_pTradNavOverlayFactory;
+  tradnavOverlayFactory *m_ptradnavOverlayFactory;
 
   wxString StandardPath();
   wxString StandardPathRTZ();
   wxString StandardPathEXT();
 
-  TradNavUIDialog *m_pTradNavDialog;
+  tradnavUIDialog *m_ptradnavDialog;
 
   // ******** Database stuff ******************************************
 
@@ -166,8 +166,8 @@ private:
   int m_display_width, m_display_height;
   int m_leftclick_tool_id;
 
-  int m_TradNav_dialog_x, m_TradNav_dialog_y;
-  int m_TradNav_dialog_sx, m_TradNav_dialog_sy;
+  int m_tradnav_dialog_x, m_tradnav_dialog_y;
+  int m_tradnav_dialog_sx, m_tradnav_dialog_sy;
 
   wxString m_CopyFolderSelected;
   int m_CopyIntervalSelected;
@@ -178,11 +178,11 @@ private:
   wxString m_RequestConfig;
   wxString *pTC_Dir;
 
-  bool m_bTradNavShowIcon;
+  bool m_btradnavShowIcon;
 
   int m_height;
 
-  bool m_bShowTradNav;
+  bool m_bShowtradnav;
   int m_table_menu_id;
 
   wxBitmap m_panelBitmap;
